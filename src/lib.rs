@@ -27,4 +27,4 @@ mod pipeline;
 pub use dispatcher::{
     BoundResource, BoundResources, WgpuDispatcher, WgpuDispatcherError,
 };
-pub use pipeline::FULLSCREEN_VERTEX_WGSL;
+pub use pipeline::{combined_shader_source, FULLSCREEN_VERTEX_WGSL};
