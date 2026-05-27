@@ -1543,7 +1543,10 @@
       "proc_macro": true,
       "build_script": null,
       "binaries": [],
-      "lib_target": null,
+      "lib_target": {
+        "name": "document_features",
+        "path": "lib.rs"
+      },
       "dependencies": [
         {
           "name": "litrs",
@@ -7702,6 +7705,15 @@
           "target": "cfg(not(target_arch = \"wasm32\"))"
         },
         {
+          "name": "smallvec",
+          "package_key": "smallvec-1.15.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "static_assertions",
           "package_key": "static_assertions-1.1.0",
           "kind": "normal",
@@ -7720,6 +7732,33 @@
           "target": null
         },
         {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"wasm32\", not(target_os = \"emscripten\")))"
+        },
+        {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "wgpu_hal",
           "package_key": "wgpu-hal-25.0.2",
           "kind": "normal",
@@ -7727,6 +7766,15 @@
           "uses_default_features": true,
           "optional": false,
           "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "wgpu_hal",
+          "package_key": "wgpu-hal-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
         },
         {
           "name": "wgpu_types",
@@ -7833,6 +7881,15 @@
           "target": "cfg(not(target_arch = \"wasm32\"))"
         },
         {
+          "name": "smallvec",
+          "package_key": "smallvec-1.15.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "static_assertions",
           "package_key": "static_assertions-1.1.0",
           "kind": "normal",
@@ -7851,6 +7908,33 @@
           "target": null
         },
         {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"wasm32\", not(target_os = \"emscripten\")))"
+        },
+        {
+          "name": "wgpu_core",
+          "package_key": "wgpu-core-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "wgpu_hal",
           "package_key": "wgpu-hal-25.0.2",
           "kind": "normal",
@@ -7858,6 +7942,15 @@
           "uses_default_features": true,
           "optional": false,
           "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "wgpu_hal",
+          "package_key": "wgpu-hal-25.0.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
         },
         {
           "name": "wgpu_types",
@@ -7897,9 +7990,25 @@
           {
             "version": "25.0.2",
             "rename": "wgpu_core"
+          },
+          {
+            "version": "25.0.2",
+            "rename": "wgpu_core"
+          },
+          {
+            "version": "25.0.2",
+            "rename": "wgpu_core"
+          },
+          {
+            "version": "25.0.2",
+            "rename": "wgpu_core"
           }
         ],
         "wgpu-hal": [
+          {
+            "version": "25.0.2",
+            "rename": "wgpu_hal"
+          },
           {
             "version": "25.0.2",
             "rename": "wgpu_hal"
@@ -8567,6 +8676,15 @@
           "target": "cfg(not(target_arch = \"wasm32\"))"
         },
         {
+          "name": "khronos_egl",
+          "package_key": "khronos-egl-6.0.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "libc",
           "package_key": "libc-0.2.186",
           "kind": "normal",
@@ -8583,6 +8701,15 @@
           "uses_default_features": true,
           "optional": true,
           "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "libloading",
+          "package_key": "libloading-0.8.9",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"emscripten\")"
         },
         {
           "name": "log",
@@ -8812,6 +8939,15 @@
           "target": "cfg(not(target_arch = \"wasm32\"))"
         },
         {
+          "name": "khronos_egl",
+          "package_key": "khronos-egl-6.0.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"emscripten\")"
+        },
+        {
           "name": "libc",
           "package_key": "libc-0.2.186",
           "kind": "normal",
@@ -8828,6 +8964,15 @@
           "uses_default_features": true,
           "optional": true,
           "target": "cfg(not(target_arch = \"wasm32\"))"
+        },
+        {
+          "name": "libloading",
+          "package_key": "libloading-0.8.9",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"emscripten\")"
         },
         {
           "name": "log",
@@ -8977,6 +9122,10 @@
           }
         ],
         "khronos-egl": [
+          {
+            "version": "6.0.0",
+            "rename": "khronos_egl"
+          },
           {
             "version": "6.0.0",
             "rename": "khronos_egl"
@@ -9246,6 +9395,15 @@
           "target": "cfg(target_os = \"ios\")"
         },
         {
+          "name": "objc2_foundation",
+          "package_key": "objc2-foundation-0.2.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"macos\")"
+        },
+        {
           "name": "rwh_06",
           "package_key": "raw-window-handle-0.6.2",
           "kind": "normal",
@@ -9360,6 +9518,15 @@
           "target": "cfg(target_os = \"ios\")"
         },
         {
+          "name": "objc2_foundation",
+          "package_key": "objc2-foundation-0.2.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"macos\")"
+        },
+        {
           "name": "rwh_06",
           "package_key": "raw-window-handle-0.6.2",
           "kind": "normal",
@@ -9426,6 +9593,10 @@
           }
         ],
         "objc2-foundation": [
+          {
+            "version": "0.2.2",
+            "rename": "objc2_foundation"
+          },
           {
             "version": "0.2.2",
             "rename": "objc2_foundation"
@@ -9512,6 +9683,15 @@
           "uses_default_features": true,
           "optional": false,
           "target": null
+        },
+        {
+          "name": "zerocopy_derive",
+          "package_key": "zerocopy-derive-0.8.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(any())"
         }
       ],
       "runtime_dependencies": [
@@ -9523,11 +9703,24 @@
           "uses_default_features": true,
           "optional": false,
           "target": null
+        },
+        {
+          "name": "zerocopy_derive",
+          "package_key": "zerocopy-derive-0.8.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(any())"
         }
       ],
       "build_dependencies": [],
       "crate_renames": {
         "zerocopy-derive": [
+          {
+            "version": "0.8.48",
+            "rename": "zerocopy_derive"
+          },
           {
             "version": "0.8.48",
             "rename": "zerocopy_derive"
