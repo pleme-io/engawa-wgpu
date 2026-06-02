@@ -1,0 +1,23 @@
+name: auto-release
+
+# Single-crate auto-release: every push to main bumps the version,
+# commits + tags v<X.Y.Z>, and uploads to crates.io. Points at the
+# per-language reusable directly (the proven engenho/tend/hashfix
+# pattern) rather than the polymorphic auto-release.yml dispatcher.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump-type:
+        description: "patch | minor | major"
+        required: false
+        default: patch
+
+jobs:
+  release:
+    uses: pleme-io/substrate/.github/workflows/cargo-auto-release.yml@main
+    with:
+      bump-type: ${{ inputs.bump-type || 'patch' }}
+    secrets: inherit
