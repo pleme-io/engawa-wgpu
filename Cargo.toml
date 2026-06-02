@@ -19,7 +19,9 @@ missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 
 [dependencies]
-engawa = { git = "https://github.com/pleme-io/engawa" }
+# version+git: publish ships the crates.io version dep (engawa is on
+# crates.io); local/HEAD builds resolve to engawa HEAD via git.
+engawa = { version = "0.1", git = "https://github.com/pleme-io/engawa" }
 wgpu = "25"
 thiserror = "2"
 
