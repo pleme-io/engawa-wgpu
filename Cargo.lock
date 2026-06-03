@@ -440,7 +440,7 @@ checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 [[package]]
 name = "engawa"
 version = "0.1.1"
-source = "git+https://github.com/pleme-io/engawa#a819601649f806bf5e61a16b817debdf1616a918"
+source = "git+https://github.com/pleme-io/engawa#5e9bf08543078c73fa0d4497413e91c6a4d3240c"
 dependencies = [
  "serde",
  "thiserror 2.0.18",
@@ -590,7 +590,7 @@ dependencies = [
 [[package]]
 name = "garasu"
 version = "0.1.0"
-source = "git+https://github.com/pleme-io/garasu#f6eae91efc59b054f7d2ceb1d016af477a25a08d"
+source = "git+https://github.com/pleme-io/garasu#a1ce77d99a43395b1d881be67a062ec86867c4f3"
 dependencies = [
  "bincode",
  "blake3",
