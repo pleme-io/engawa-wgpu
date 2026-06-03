@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "cargo_lock_sha256": "253ea451d4296a9bc42a3be7cc77677c5a91187ba0c0511a8f6e8177a9fec7b0",
+  "cargo_lock_sha256": "30aaaf23a46830c0ab76f46004741298ec5183ed93001edee73be287c84f4746",
   "target_resolves": {
     "base": {
       "arrayref-0.3.9": {
@@ -18068,8 +18068,8 @@
     }
   },
   "git_nar_sha256": {
-    "engawa-0.1.1": "sha256-nISfxx961ycUwggZzKj5z+tGLQ+F84hAJJsUHQM39q0=",
-    "garasu-0.1.0": "sha256-6Wr2ATKIIvDnuvODuwHX1CHuEwifuqWr3NBO0tc2BY0="
+    "engawa-0.1.1": "sha256-J62cxON4S/MXYMCN51v8wfB61UxMizPtm31s52QlSe8=",
+    "garasu-0.1.0": "sha256-NFORKMFjazFv+drWPHCastdCNM0OaosdcCd2O0qRgv0="
   },
   "flake_metadata": {}
 }
