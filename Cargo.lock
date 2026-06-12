@@ -450,8 +450,10 @@ dependencies = [
 name = "engawa-wgpu"
 version = "0.1.2"
 dependencies = [
+ "bytemuck",
  "engawa",
  "garasu",
+ "pleme-allvariants-derive",
  "pollster",
  "thiserror 2.0.18",
  "wgpu",
@@ -1419,6 +1421,16 @@ name = "plain"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4596b6d070b27117e987119b4dac604f3c58cfb0b191112e24771b2faeac1a6"
+
+[[package]]
+name = "pleme-allvariants-derive"
+version = "0.1.0"
+source = "git+https://github.com/pleme-io/pleme-allvariants-derive#c66f20d1dc5727cfa0d1f83a02a28609a13387ec"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "polling"

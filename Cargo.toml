@@ -24,6 +24,11 @@ missing_panics_doc = "allow"
 engawa = { version = "0.1", git = "https://github.com/pleme-io/engawa" }
 wgpu = "25"
 thiserror = "2"
+bytemuck = { version = "1", features = ["derive"] }
+# Mechanical ALL registry for the effect catalog enum — per the
+# ★★ EMITTER SUBSTRATE rule, ALL is derived from the variants,
+# never hand-listed (macro farm, tatara-rust-ast).
+pleme-allvariants-derive = { version = "0.1", git = "https://github.com/pleme-io/pleme-allvariants-derive" }
 
 [dev-dependencies]
 garasu = { git = "https://github.com/pleme-io/garasu", features = ["gpu_tests"] }

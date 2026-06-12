@@ -1,10 +1,27 @@
 //! `WgpuDispatcher` — engawa's `Dispatcher` trait realised
 //! against wgpu.
 //!
+//! **Per-call dispatch is the canonical path.** Construct once
+//! with `new` (the device/queue handles are cloned in — wgpu
+//! handles are internally reference-counted, so this shares the
+//! underlying device, it does not duplicate it), then call
+//! [`WgpuDispatcher::dispatch_with`] per frame with the graph,
+//! the bindings, the live wgpu handles, and the per-frame
+//! [`FrameUniforms`].
+//!
+//! LAW (2026-06-12): the former `WgpuDispatcher<'a>` struct-level
+//! `&'a Device + &'a Queue` borrow is deleted. It forced mado to
+//! bypass the dispatcher entirely for post-process + snow
+//! rendering (mado's `TerminalRenderer` does not own the device,
+//! so it could not hold a dispatcher that borrowed one). Owned
+//! Arc-backed handles + per-call `dispatch_with` is the
+//! successor; do not reintroduce a lifetime here.
+//!
 //! Pipeline cache keyed by Material name; pipelines compile
-//! once per Material per WgpuDispatcher lifetime. Each
-//! dispatch_node call begins one render pass + draws one
-//! fullscreen triangle.
+//! once per Material per `WgpuDispatcher` lifetime (see
+//! [`WgpuDispatcher::invalidate_material`] for the hot-reload
+//! seam). Each `dispatch_node` call begins one render pass +
+//! draws one fullscreen triangle.
 //!
 //! Bind-group construction lives at the boundary: callers
 //! pass a `BoundResources` map (engawa `ResourceId` →
@@ -54,6 +71,25 @@ pub enum WgpuDispatcherError {
         binding: u32,
         resource: ResourceId,
     },
+    #[error(
+        "frame uniform for {resource:?} has no BoundResources entry — bind the uniform buffer before dispatch"
+    )]
+    FrameUniformUnbound { resource: ResourceId },
+    #[error(
+        "frame uniform for {resource:?} expects a Uniform buffer but the bound resource is {actual}"
+    )]
+    FrameUniformKindMismatch {
+        resource: ResourceId,
+        actual: &'static str,
+    },
+    #[error(
+        "frame uniform for {resource:?} is {actual} bytes but the bound buffer holds {capacity}"
+    )]
+    FrameUniformOverflow {
+        resource: ResourceId,
+        actual: usize,
+        capacity: u64,
+    },
 }
 
 /// Live wgpu handle wrapped in a tagged enum so the dispatcher
@@ -70,9 +106,22 @@ pub enum BoundResource {
     Sampler(wgpu::Sampler),
 }
 
+impl BoundResource {
+    /// Variant name for typed error reporting.
+    #[must_use]
+    pub fn kind_name(&self) -> &'static str {
+        match self {
+            BoundResource::Texture { .. } => "Texture",
+            BoundResource::Uniform(_) => "Uniform",
+            BoundResource::Storage(_) => "Storage",
+            BoundResource::Sampler(_) => "Sampler",
+        }
+    }
+}
+
 /// Per-frame map of engawa `ResourceId` → live wgpu handle.
 /// The consumer (mado, future ayatsuri) populates this before
-/// calling `dispatch_graph`. Engawa already validated at
+/// calling `dispatch_with`. Engawa already validated at
 /// compile time that every node references a resource that's
 /// either an input or another node's output; the dispatcher
 /// validates that every referenced resource has a `BoundResource`
@@ -118,6 +167,62 @@ impl BoundResources {
     }
 }
 
+/// Per-frame uniform payloads — a typed map of engawa
+/// `ResourceId` → `bytemuck`-encoded bytes that
+/// [`WgpuDispatcher::dispatch_with`] writes into the
+/// corresponding [`BoundResource::Uniform`] buffers *before*
+/// any pass of that dispatch is encoded, so every node in the
+/// graph walk sees the same frame data.
+///
+/// Entries are inserted through the typed [`FrameUniforms::set`]
+/// / [`FrameUniforms::with`] surface (`bytemuck::Pod` values
+/// only) — there is no raw-bytes ingress, so a non-Pod or
+/// padding-carrying struct cannot enter the map (compile error
+/// at the bound, not a runtime check).
+#[derive(Default, Clone)]
+pub struct FrameUniforms {
+    inner: BTreeMap<ResourceId, Vec<u8>>,
+}
+
+impl FrameUniforms {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Builder-style insert of one Pod params value.
+    #[must_use]
+    pub fn with<P: bytemuck::Pod>(
+        mut self,
+        id: impl Into<ResourceId>,
+        params: &P,
+    ) -> Self {
+        self.set(id, params);
+        self
+    }
+
+    /// Insert (or replace) one Pod params value.
+    pub fn set<P: bytemuck::Pod>(&mut self, id: impl Into<ResourceId>, params: &P) {
+        self.inner
+            .insert(id.into(), bytemuck::bytes_of(params).to_vec());
+    }
+
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
+    /// Iterate entries in deterministic (`BTreeMap`) order.
+    pub fn iter(&self) -> impl Iterator<Item = (&ResourceId, &[u8])> {
+        self.inner.iter().map(|(id, bytes)| (id, bytes.as_slice()))
+    }
+}
+
 /// Per-Material wgpu pipeline cache entry.
 struct CachedPipeline {
     pipeline: wgpu::RenderPipeline,
@@ -125,32 +230,36 @@ struct CachedPipeline {
 }
 
 /// Dispatcher that compiles engawa render graphs to wgpu
-/// commands. Construct once; call `dispatch_graph` per frame.
-pub struct WgpuDispatcher<'a> {
-    device: &'a wgpu::Device,
-    queue: &'a wgpu::Queue,
+/// commands. Construct once; call `dispatch_with` per frame.
+pub struct WgpuDispatcher {
+    device: wgpu::Device,
+    queue: wgpu::Queue,
     target_format: wgpu::TextureFormat,
     pipelines: BTreeMap<String, CachedPipeline>,
-    /// Encoder used for the current `dispatch_graph` call. The
-    /// caller passes their own encoder via `set_encoder`; the
+    /// Encoder used for the current `dispatch_with` call; the
     /// dispatcher uses it for every per-node render pass, then
-    /// the caller submits.
+    /// finishes it into the returned `CommandBuffer`.
     encoder: Option<wgpu::CommandEncoder>,
     /// Per-frame bound resources. Set by `dispatch_with` before
     /// the graph walk.
     bound: Option<BoundResources>,
 }
 
-impl<'a> WgpuDispatcher<'a> {
+impl WgpuDispatcher {
+    /// Construct a dispatcher. The device/queue handles are
+    /// cloned (wgpu handles are internally reference-counted) —
+    /// the dispatcher holds no lifetime borrow, so a consumer
+    /// that does not own its device (mado's `TerminalRenderer`)
+    /// can still own a dispatcher.
     #[must_use]
     pub fn new(
-        device: &'a wgpu::Device,
-        queue: &'a wgpu::Queue,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
         target_format: wgpu::TextureFormat,
     ) -> Self {
         Self {
-            device,
-            queue,
+            device: device.clone(),
+            queue: queue.clone(),
             target_format,
             pipelines: BTreeMap::new(),
             encoder: None,
@@ -158,24 +267,67 @@ impl<'a> WgpuDispatcher<'a> {
         }
     }
 
-    /// One-shot helper: compile (if needed), build bindings,
-    /// walk the graph, return the recorded `CommandBuffer`
-    /// ready to submit. Wraps the trait's `dispatch_graph` +
-    /// encoder lifecycle so the call site stays one line.
+    /// Number of Materials with a compiled pipeline in the
+    /// cache. Pipelines compile once per Material name; a
+    /// second `dispatch_with` over the same graph must not grow
+    /// this count.
+    #[must_use]
+    pub fn cached_pipeline_count(&self) -> usize {
+        self.pipelines.len()
+    }
+
+    /// Drop the cached pipeline for one Material name. The
+    /// cache is keyed by name only — a hot-reload that swaps a
+    /// Material's shader under the same name MUST call this or
+    /// the stale pipeline keeps dispatching.
+    pub fn invalidate_material(&mut self, name: &str) {
+        self.pipelines.remove(name);
+    }
+
+    /// Canonical per-call dispatch: write the per-frame
+    /// uniforms, compile any uncached Materials, walk the
+    /// graph, return the recorded `CommandBuffer` ready to
+    /// submit.
     pub fn dispatch_with(
         &mut self,
         graph: &CompiledGraph,
-        bindings: ResourceBindings,
+        bindings: &ResourceBindings,
         bound: BoundResources,
+        frame: &FrameUniforms,
     ) -> Result<wgpu::CommandBuffer, WgpuDispatcherError> {
         // Pre-compile every Material referenced in the graph.
         for node in graph.iter_nodes() {
-            if let Some(material) = &node.material {
-                if !self.pipelines.contains_key(&material.name) {
-                    let cached = self.build_pipeline(material)?;
-                    self.pipelines.insert(material.name.clone(), cached);
-                }
+            if let Some(material) = &node.material
+                && !self.pipelines.contains_key(&material.name)
+            {
+                let cached = self.build_pipeline(material);
+                self.pipelines.insert(material.name.clone(), cached);
             }
+        }
+
+        // Per-frame uniform writes happen before any pass is
+        // encoded so every node in this dispatch sees the same
+        // frame data.
+        for (id, bytes) in frame.iter() {
+            let Some(resource) = bound.get(id) else {
+                return Err(WgpuDispatcherError::FrameUniformUnbound {
+                    resource: id.clone(),
+                });
+            };
+            let BoundResource::Uniform(buf) = resource else {
+                return Err(WgpuDispatcherError::FrameUniformKindMismatch {
+                    resource: id.clone(),
+                    actual: resource.kind_name(),
+                });
+            };
+            if bytes.len() as u64 > buf.size() {
+                return Err(WgpuDispatcherError::FrameUniformOverflow {
+                    resource: id.clone(),
+                    actual: bytes.len(),
+                    capacity: buf.size(),
+                });
+            }
+            self.queue.write_buffer(buf, 0, bytes);
         }
 
         // Encoder live for the entire graph walk; one submit at
@@ -190,17 +342,14 @@ impl<'a> WgpuDispatcher<'a> {
 
         // Walk via the engawa trait's default impl — it validates
         // ResourceBindings + delegates each node to dispatch_node.
-        self.dispatch_graph(graph, &bindings)?;
-
-        let encoder = self.encoder.take().expect("encoder set");
+        let walked = self.dispatch_graph(graph, bindings);
         self.bound = None;
+        let encoder = self.encoder.take().expect("encoder set");
+        walked?;
         Ok(encoder.finish())
     }
 
-    fn build_pipeline(
-        &self,
-        material: &Material,
-    ) -> Result<CachedPipeline, WgpuDispatcherError> {
+    fn build_pipeline(&self, material: &Material) -> CachedPipeline {
         let fragment_wgsl = match &material.shader {
             engawa::ShaderSource::Inline { wgsl } => wgsl.clone(),
             engawa::ShaderSource::Path { path } => {
@@ -273,11 +422,78 @@ impl<'a> WgpuDispatcher<'a> {
             cache: None,
         });
 
-        Ok(CachedPipeline {
+        CachedPipeline {
             pipeline,
             bind_group_layout,
-        })
+        }
     }
+}
+
+/// First-output texture view lookup shared by the clear + effect
+/// paths. Associated fn (not a method) so callers can keep a
+/// disjoint `&mut self.encoder` borrow alive alongside it.
+fn first_output_view<'b>(
+    node: &Node,
+    bound: &'b BoundResources,
+) -> Result<&'b wgpu::TextureView, DispatchError> {
+    let output_id = node.outputs.first().ok_or_else(|| {
+        DispatchError::Backend(format!("node {:?} has no outputs", node.id))
+    })?;
+    let Some(BoundResource::Texture { view, .. }) = bound.get(output_id) else {
+        return Err(DispatchError::Backend(format!(
+            "node {:?} output {:?} is not a Texture binding",
+            node.id, output_id
+        )));
+    };
+    Ok(view)
+}
+
+/// Build the wgpu bind-group entries a Material's declared
+/// bindings resolve to against the per-frame `BoundResources`.
+fn bind_group_entries<'b>(
+    node: &Node,
+    material: &Material,
+    bound: &'b BoundResources,
+) -> Result<Vec<wgpu::BindGroupEntry<'b>>, DispatchError> {
+    material
+        .bindings
+        .iter()
+        .map(|b| {
+            let resource = bound.get(&b.resource).ok_or_else(|| {
+                DispatchError::Backend(format!(
+                    "node {:?} binding {} references resource {:?} not in BoundResources",
+                    node.id, b.binding, b.resource
+                ))
+            })?;
+            let binding_resource = match (b.kind, resource) {
+                (BindingKind::Uniform, BoundResource::Uniform(buf))
+                | (
+                    BindingKind::StorageRead | BindingKind::StorageReadWrite,
+                    BoundResource::Storage(buf),
+                ) => wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer: buf,
+                    offset: 0,
+                    size: None,
+                }),
+                (BindingKind::Texture, BoundResource::Texture { view, .. }) => {
+                    wgpu::BindingResource::TextureView(view)
+                }
+                (BindingKind::Sampler, BoundResource::Sampler(s)) => {
+                    wgpu::BindingResource::Sampler(s)
+                }
+                _ => {
+                    return Err(DispatchError::Backend(format!(
+                        "node {:?} binding {} kind mismatch (expected {:?})",
+                        node.id, b.binding, b.kind
+                    )));
+                }
+            };
+            Ok(wgpu::BindGroupEntry {
+                binding: b.binding,
+                resource: binding_resource,
+            })
+        })
+        .collect::<Result<Vec<_>, DispatchError>>()
 }
 
 fn binding_kind_to_wgpu(kind: BindingKind) -> wgpu::BindingType {
@@ -306,7 +522,7 @@ fn binding_kind_to_wgpu(kind: BindingKind) -> wgpu::BindingType {
     }
 }
 
-impl<'a> Dispatcher for WgpuDispatcher<'a> {
+impl Dispatcher for WgpuDispatcher {
     fn dispatch_node(
         &mut self,
         node: &Node,
@@ -320,28 +536,15 @@ impl<'a> Dispatcher for WgpuDispatcher<'a> {
             )));
         }
 
+        let bound = self.bound.as_ref().ok_or_else(|| {
+            DispatchError::Backend("dispatch called without bound resources".into())
+        })?;
+        let view = first_output_view(node, bound)?;
+
         // Clear-only nodes (no material): paint a black load+clear
         // into the first output. Mado typically uses this as the
         // first node in the graph.
         let Some(material) = node.material.as_ref() else {
-            let output_id = node.outputs.first().ok_or_else(|| {
-                DispatchError::Backend(format!(
-                    "clear node {:?} has no outputs",
-                    node.id
-                ))
-            })?;
-            let bound = self.bound.as_ref().ok_or_else(|| {
-                DispatchError::Backend("dispatch called without bound resources".into())
-            })?;
-            let view = match bound.get(output_id) {
-                Some(BoundResource::Texture { view, .. }) => view,
-                _ => {
-                    return Err(DispatchError::Backend(format!(
-                        "clear node {:?} output {:?} is not a Texture binding",
-                        node.id, output_id
-                    )));
-                }
-            };
             let encoder = self
                 .encoder
                 .as_mut()
@@ -371,73 +574,12 @@ impl<'a> Dispatcher for WgpuDispatcher<'a> {
             ))
         })?;
 
-        let bound = self.bound.as_ref().ok_or_else(|| {
-            DispatchError::Backend("dispatch called without bound resources".into())
-        })?;
-
-        // Build bind group from declared bindings.
-        let entries: Vec<wgpu::BindGroupEntry> = material
-            .bindings
-            .iter()
-            .map(|b| {
-                let resource = bound.get(&b.resource).ok_or_else(|| {
-                    DispatchError::Backend(format!(
-                        "node {:?} binding {} references resource {:?} not in BoundResources",
-                        node.id, b.binding, b.resource
-                    ))
-                })?;
-                let binding_resource = match (b.kind, resource) {
-                    (BindingKind::Uniform, BoundResource::Uniform(buf))
-                    | (BindingKind::StorageRead, BoundResource::Storage(buf))
-                    | (BindingKind::StorageReadWrite, BoundResource::Storage(buf)) => {
-                        wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: buf,
-                            offset: 0,
-                            size: None,
-                        })
-                    }
-                    (BindingKind::Texture, BoundResource::Texture { view, .. }) => {
-                        wgpu::BindingResource::TextureView(view)
-                    }
-                    (BindingKind::Sampler, BoundResource::Sampler(s)) => {
-                        wgpu::BindingResource::Sampler(s)
-                    }
-                    _ => {
-                        return Err(DispatchError::Backend(format!(
-                            "node {:?} binding {} kind mismatch (expected {:?})",
-                            node.id, b.binding, b.kind
-                        )));
-                    }
-                };
-                Ok(wgpu::BindGroupEntry {
-                    binding: b.binding,
-                    resource: binding_resource,
-                })
-            })
-            .collect::<Result<Vec<_>, DispatchError>>()?;
-
+        let entries = bind_group_entries(node, material, bound)?;
         let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some(node.id.as_str()),
             layout: &cached.bind_group_layout,
             entries: &entries,
         });
-
-        // Target view = first output (we don't support MRT in v0.1).
-        let output_id = node.outputs.first().ok_or_else(|| {
-            DispatchError::Backend(format!(
-                "fullscreen-effect node {:?} has no outputs",
-                node.id
-            ))
-        })?;
-        let view = match bound.get(output_id) {
-            Some(BoundResource::Texture { view, .. }) => view,
-            _ => {
-                return Err(DispatchError::Backend(format!(
-                    "node {:?} output {:?} is not a Texture binding",
-                    node.id, output_id
-                )));
-            }
-        };
 
         let encoder = self
             .encoder
@@ -461,10 +603,6 @@ impl<'a> Dispatcher for WgpuDispatcher<'a> {
         pass.set_pipeline(&cached.pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
         pass.draw(0..3, 0..1);
-
-        // queue is captured for future per-frame uniform writes;
-        // silence the unused-field lint for now.
-        let _ = self.queue;
 
         Ok(())
     }
