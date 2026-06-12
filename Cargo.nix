@@ -1356,7 +1356,7 @@ rec {
       };
       "engawa-wgpu" = rec {
         crateName = "engawa-wgpu";
-        version = "0.1.2";
+        version = "0.1.3";
         edition = "2024";
         src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
         libName = "engawa_wgpu";
