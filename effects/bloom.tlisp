@@ -1,0 +1,18 @@
+; engawa-wgpu effect catalog — bloom (multi-node: threshold →
+; separable gaussian blur (horizontal + vertical) → additive
+; composite). One shared BloomParams uniform across all four
+; nodes; the blur axis is baked per-material.
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<BloomParams>() matches.
+
+(defeffect bloom
+  (priority 300)
+  (params-size 32)
+  (params-resource "bloom:params")
+  (nodes
+    (node bloom:threshold (input "scene") (output "bloom:bright"))
+    (node bloom:blur-h (input "bloom:bright") (output "bloom:blur-h"))
+    (node bloom:blur-v (input "bloom:blur-h") (output "bloom:blur-v"))
+    (node bloom:composite (input "scene" "bloom:blur-v") (output "out"))))

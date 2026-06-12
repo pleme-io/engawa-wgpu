@@ -1,0 +1,15 @@
+; engawa-wgpu effect catalog — scanlines (cosine-profile CRT row
+; darkening).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<ScanlinesParams>() matches.
+
+(defeffect scanlines
+  (priority 600)
+  (params-size 16)
+  (params-resource "scanlines:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "scanlines:params")))

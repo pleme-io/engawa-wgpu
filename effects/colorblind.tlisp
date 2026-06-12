@@ -1,0 +1,15 @@
+; engawa-wgpu effect catalog — colorblind (Machado et al. 2009
+; CVD simulation, severity 1.0; constants verbatim from mado).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<ColorblindParams>() matches.
+
+(defeffect colorblind
+  (priority 700)
+  (params-size 16)
+  (params-resource "colorblind:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "colorblind:params")))
