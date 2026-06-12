@@ -40,14 +40,20 @@ use thiserror::Error;
 
 use crate::pipeline::combined_shader_source;
 
+/// Typed dispatch-failure surface. Every variant here is
+/// CONSTRUCTED by the dispatch path — the M3 review (2026-06-12)
+/// found five declared-but-never-built variants advertising a typed
+/// API the error paths didn't deliver; `MissingMaterial` (materialless
+/// nodes are clear nodes by design, so the state was unreachable) is
+/// deleted and the rest now flow through [`Dispatcher::dispatch_node`]
+/// via Display at the trait seam (the engawa trait returns
+/// `DispatchError`, so typed variants stringify exactly once there).
 #[derive(Debug, Error)]
 pub enum WgpuDispatcherError {
     #[error("engawa dispatch error: {0}")]
     Dispatch(#[from] DispatchError),
     #[error("unsupported pass kind for v0.1: {0:?}; only Render is implemented today")]
     UnsupportedPass(PassKind),
-    #[error("node {node:?} has no material but pass kind requires one")]
-    MissingMaterial { node: NodeId },
     #[error(
         "node {node:?} binding {binding} expects {expected:?} but bound resource for {resource:?} is {actual:?}"
     )]
@@ -72,6 +78,14 @@ pub enum WgpuDispatcherError {
         resource: ResourceId,
     },
     #[error(
+        "material {material} shader at {path} is unreadable: {source} — refusing to dispatch a placeholder"
+    )]
+    ShaderUnreadable {
+        material: String,
+        path: String,
+        source: std::io::Error,
+    },
+    #[error(
         "frame uniform for {resource:?} has no BoundResources entry — bind the uniform buffer before dispatch"
     )]
     FrameUniformUnbound { resource: ResourceId },
@@ -83,13 +97,26 @@ pub enum WgpuDispatcherError {
         actual: &'static str,
     },
     #[error(
-        "frame uniform for {resource:?} is {actual} bytes but the bound buffer holds {capacity}"
+        "frame uniform for {resource:?} is {actual} bytes but wgpu writes must be multiples of {} bytes — pad the Pod struct to the next 4-byte boundary",
+        wgpu::COPY_BUFFER_ALIGNMENT
     )]
-    FrameUniformOverflow {
+    FrameUniformMisaligned { resource: ResourceId, actual: usize },
+    #[error(
+        "frame uniform for {resource:?} is {actual} bytes but the bound buffer holds exactly {capacity} — partial writes leave stale tail bytes and are never intended"
+    )]
+    FrameUniformSizeMismatch {
         resource: ResourceId,
         actual: usize,
         capacity: u64,
     },
+}
+
+/// The one stringify seam: the engawa `Dispatcher` trait returns
+/// `DispatchError`, so typed `WgpuDispatcherError` values constructed
+/// inside the walk convert here — typed at the source, Display'd once
+/// at the boundary, never `format!`-composed inline.
+fn backend(err: &WgpuDispatcherError) -> DispatchError {
+    DispatchError::Backend(err.to_string())
 }
 
 /// Live wgpu handle wrapped in a tagged enum so the dispatcher
@@ -295,12 +322,14 @@ impl WgpuDispatcher {
         bound: BoundResources,
         frame: &FrameUniforms,
     ) -> Result<wgpu::CommandBuffer, WgpuDispatcherError> {
-        // Pre-compile every Material referenced in the graph.
+        // Pre-compile every Material referenced in the graph. A
+        // Path-sourced shader that cannot be read is a typed error
+        // HERE — never a silently-compiling placeholder pipeline.
         for node in graph.iter_nodes() {
             if let Some(material) = &node.material
                 && !self.pipelines.contains_key(&material.name)
             {
-                let cached = self.build_pipeline(material);
+                let cached = self.build_pipeline(material)?;
                 self.pipelines.insert(material.name.clone(), cached);
             }
         }
@@ -320,8 +349,21 @@ impl WgpuDispatcher {
                     actual: resource.kind_name(),
                 });
             };
-            if bytes.len() as u64 > buf.size() {
-                return Err(WgpuDispatcherError::FrameUniformOverflow {
+            // wgpu's write_buffer PANICS on a data size that is not
+            // a COPY_BUFFER_ALIGNMENT multiple — reject it as a typed
+            // error before the panic path is reachable (M3 review
+            // 2026-06-12). Size must match EXACTLY: an under-sized
+            // write passes wgpu validation but leaves the buffer tail
+            // holding the previous frame's bytes — a silent wrong
+            // answer, not an error anyone sees.
+            if !(bytes.len() as u64).is_multiple_of(wgpu::COPY_BUFFER_ALIGNMENT) {
+                return Err(WgpuDispatcherError::FrameUniformMisaligned {
+                    resource: id.clone(),
+                    actual: bytes.len(),
+                });
+            }
+            if bytes.len() as u64 != buf.size() {
+                return Err(WgpuDispatcherError::FrameUniformSizeMismatch {
                     resource: id.clone(),
                     actual: bytes.len(),
                     capacity: buf.size(),
@@ -349,23 +391,23 @@ impl WgpuDispatcher {
         Ok(encoder.finish())
     }
 
-    fn build_pipeline(&self, material: &Material) -> CachedPipeline {
+    fn build_pipeline(
+        &self,
+        material: &Material,
+    ) -> Result<CachedPipeline, WgpuDispatcherError> {
+        // LAW (2026-06-12): an unreadable Path shader is a typed
+        // error, never a fallback. The deleted red-tint placeholder
+        // was valid WGSL — the pipeline compiled and dispatched wrong
+        // pixels with only a stderr line as signal (the silent-wrong-
+        // answer anti-pattern the typed-spec rules forbid).
         let fragment_wgsl = match &material.shader {
             engawa::ShaderSource::Inline { wgsl } => wgsl.clone(),
-            engawa::ShaderSource::Path { path } => {
-                std::fs::read_to_string(path).unwrap_or_else(|e| {
-                    // Surface error via tracing; pipeline will
-                    // fail to compile and the wgpu error scope
-                    // will catch it.
-                    eprintln!(
-                        "engawa-wgpu: failed to read shader at {path}: {e}; \
-                         falling back to red-tint placeholder"
-                    );
-                    "@fragment fn fs_main() -> @location(0) vec4<f32> { \
-                     return vec4<f32>(1.0, 0.0, 0.0, 1.0); }"
-                        .to_string()
-                })
-            }
+            engawa::ShaderSource::Path { path } => std::fs::read_to_string(path)
+                .map_err(|source| WgpuDispatcherError::ShaderUnreadable {
+                    material: material.name.clone(),
+                    path: path.clone(),
+                    source,
+                })?,
         };
         let combined = combined_shader_source(&fragment_wgsl);
         let shader = self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -422,10 +464,10 @@ impl WgpuDispatcher {
             cache: None,
         });
 
-        CachedPipeline {
+        Ok(CachedPipeline {
             pipeline,
             bind_group_layout,
-        }
+        })
     }
 }
 
@@ -440,10 +482,10 @@ fn first_output_view<'b>(
         DispatchError::Backend(format!("node {:?} has no outputs", node.id))
     })?;
     let Some(BoundResource::Texture { view, .. }) = bound.get(output_id) else {
-        return Err(DispatchError::Backend(format!(
-            "node {:?} output {:?} is not a Texture binding",
-            node.id, output_id
-        )));
+        return Err(backend(&WgpuDispatcherError::OutputNotBound {
+            node: node.id.clone(),
+            resource: output_id.clone(),
+        }));
     };
     Ok(view)
 }
@@ -460,10 +502,11 @@ fn bind_group_entries<'b>(
         .iter()
         .map(|b| {
             let resource = bound.get(&b.resource).ok_or_else(|| {
-                DispatchError::Backend(format!(
-                    "node {:?} binding {} references resource {:?} not in BoundResources",
-                    node.id, b.binding, b.resource
-                ))
+                backend(&WgpuDispatcherError::BoundResourceMissing {
+                    node: node.id.clone(),
+                    binding: b.binding,
+                    resource: b.resource.clone(),
+                })
             })?;
             let binding_resource = match (b.kind, resource) {
                 (BindingKind::Uniform, BoundResource::Uniform(buf))
@@ -482,10 +525,13 @@ fn bind_group_entries<'b>(
                     wgpu::BindingResource::Sampler(s)
                 }
                 _ => {
-                    return Err(DispatchError::Backend(format!(
-                        "node {:?} binding {} kind mismatch (expected {:?})",
-                        node.id, b.binding, b.kind
-                    )));
+                    return Err(backend(&WgpuDispatcherError::BindingKindMismatch {
+                        node: node.id.clone(),
+                        binding: b.binding,
+                        resource: b.resource.clone(),
+                        expected: b.kind,
+                        actual: resource.kind_name(),
+                    }));
                 }
             };
             Ok(wgpu::BindGroupEntry {
@@ -530,10 +576,7 @@ impl Dispatcher for WgpuDispatcher {
     ) -> Result<(), DispatchError> {
         if node.pass != PassKind::Render {
             // v0.1 scope. Compute / Blit land next iteration.
-            return Err(DispatchError::Backend(format!(
-                "engawa-wgpu v0.1 only supports Render; node {:?} requested {:?}",
-                node.id, node.pass
-            )));
+            return Err(backend(&WgpuDispatcherError::UnsupportedPass(node.pass)));
         }
 
         let bound = self.bound.as_ref().ok_or_else(|| {
@@ -592,7 +635,15 @@ impl Dispatcher for WgpuDispatcher {
                 view,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Load,
+                    // Clear, not Load: every effect node is a
+                    // fullscreen triangle with blending disabled, so
+                    // the previous attachment contents are always
+                    // fully overwritten. On tile-based GPUs (Apple
+                    // Silicon) Load forces a full attachment restore
+                    // into tile memory per pass — pure bandwidth
+                    // waste at scene-sized textures (M3 review
+                    // 2026-06-12). Clear resolves in tile memory.
+                    load: wgpu::LoadOp::Clear(wgpu::Color::BLACK),
                     store: wgpu::StoreOp::Store,
                 },
             })],

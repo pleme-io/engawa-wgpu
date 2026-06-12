@@ -7,7 +7,11 @@
 //! `Option<wgpu::Texture>` per effect, the consumer leases a
 //! texture for the frame and releases it back. A resize is just
 //! a lease under a different key; entries for stale sizes stay
-//! in the free list until [`TexturePool::clear`].
+//! in the free list until [`TexturePool::clear`] or the targeted
+//! [`TexturePool::retain`] — render loops MUST call one of them
+//! when their surface size changes, or every live-resize
+//! intermediate size strands a full texture set for the pool's
+//! lifetime.
 //!
 //! ## Lease discipline (tier-honest)
 //!
@@ -160,6 +164,22 @@ impl TexturePool {
     /// left stale-size entries behind).
     pub fn clear(&mut self) {
         self.free.clear();
+    }
+
+    /// Keep only free-list buckets whose key satisfies `keep`;
+    /// everything else is dropped (wgpu frees the textures).
+    ///
+    /// The targeted eviction seam for the live-resize hazard the
+    /// module doc names: a consumer that renders at one resolution
+    /// per frame calls `retain(|k| k.width == w && k.height == h)`
+    /// when its surface size changes, so a macOS live-resize drag
+    /// (a distinct size nearly every frame) cannot strand full-window
+    /// texture sets for every intermediate size (M3 review
+    /// 2026-06-12 — mado leaked ~24 MB x 9 textures per visited
+    /// size with the 6-effect chain enabled). Covers DPI and format
+    /// churn too: the predicate sees the whole key.
+    pub fn retain(&mut self, mut keep: impl FnMut(&TextureKey) -> bool) {
+        self.free.retain(|key, _| keep(key));
     }
 }
 

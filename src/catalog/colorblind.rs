@@ -60,8 +60,17 @@ pub enum ColorblindMode {
 }
 
 /// Uniform payload — 16 bytes (`mode` + std140 padding).
-/// Constructed only through [`ColorblindParams::new`], so the
-/// mode word can never hold a value outside the WGSL contract.
+///
+/// Tier-honest (M3 review 2026-06-12): the field is sealed and
+/// [`ColorblindParams::new`] is the sole non-bytes constructor, but
+/// the `Pod` derive the uniform path requires is a safe bytes
+/// ingress — `bytemuck::cast::<[u32; 4], ColorblindParams>([7, 0, 0, 0])`
+/// mints an out-of-contract mode word without touching `new`. So
+/// out-of-contract words are **only-mitigated**, not unrepresentable.
+/// The WGSL contract is therefore total over the whole u32 domain:
+/// unknown mode words degrade to pass-through (mode-0 semantics),
+/// pinned by `wgsl_is_total_over_the_mode_word` below and the
+/// out-of-contract GPU pixel test.
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Pod, Zeroable)]
 pub struct ColorblindParams {
@@ -156,5 +165,32 @@ mod tests {
         assert_eq!(ColorblindParams::new(ColorblindMode::Protanopia).mode_word(), 1);
         assert_eq!(ColorblindParams::new(ColorblindMode::Deuteranopia).mode_word(), 2);
         assert_eq!(ColorblindParams::new(ColorblindMode::Tritanopia).mode_word(), 3);
+    }
+
+    /// The WGSL must name every contract arm EXPLICITLY (1u/2u/3u)
+    /// and end in a pass-through default — a catch-all matrix arm
+    /// silently rendered every out-of-contract mode word (reachable
+    /// via the Pod bytes ingress) as Tritanopia.
+    #[test]
+    fn wgsl_is_total_over_the_mode_word() {
+        for arm in ["params.mode == 1u", "params.mode == 2u", "params.mode == 3u"] {
+            assert!(WGSL.contains(arm), "colorblind WGSL lost explicit arm {arm}");
+        }
+        let tail = WGSL.split("params.mode == 3u").nth(1).expect("3u arm present");
+        let default_arm = tail.split("} else {").nth(1).expect("default arm present");
+        assert!(
+            default_arm.contains("return color;"),
+            "out-of-contract mode words must degrade to pass-through"
+        );
+    }
+
+    /// The Pod bytes ingress is REAL (this is the only-mitigated
+    /// tier stated honestly): casting raw words mints a mode the
+    /// constructor would never produce. Pin that the ingress exists
+    /// so the doc claim above stays falsifiable.
+    #[test]
+    fn pod_cast_can_mint_out_of_contract_mode_words() {
+        let params: ColorblindParams = bytemuck::cast([7_u32, 0, 0, 0]);
+        assert_eq!(params.mode_word(), 7);
     }
 }

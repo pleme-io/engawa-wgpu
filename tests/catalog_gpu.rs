@@ -19,7 +19,7 @@ use garasu::GpuContext;
 const W: u32 = 64;
 const H: u32 = 64;
 
-fn run_colorblind(mode: colorblind::ColorblindMode) -> Vec<u8> {
+fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
     let format = wgpu::TextureFormat::Rgba8UnormSrgb;
     let gpu = pollster::block_on(GpuContext::new()).expect("gpu");
     let target = HeadlessTarget::new(&gpu, W, H, format);
@@ -75,8 +75,7 @@ fn run_colorblind(mode: colorblind::ColorblindMode) -> Vec<u8> {
         .with(OUT, BoundResource::Texture { view: target.view().clone(), format })
         .with(CATALOG_SAMPLER, BoundResource::Sampler(sampler))
         .with(colorblind::PARAMS_RESOURCE, BoundResource::Uniform(params_buf));
-    let frame = FrameUniforms::new()
-        .with(colorblind::PARAMS_RESOURCE, &colorblind::ColorblindParams::new(mode));
+    let frame = FrameUniforms::new().with(colorblind::PARAMS_RESOURCE, &params);
 
     let mut dispatcher = WgpuDispatcher::new(&gpu.device, &gpu.queue, format);
     let cmd = dispatcher
@@ -96,25 +95,77 @@ fn center_pixel(pixels: &[u8]) -> [u8; 4] {
     [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]]
 }
 
+/// sRGB encode (linear → stored byte) — what the `Rgba8UnormSrgb`
+/// attachment does to the shader's linear output. The expected
+/// pixel values below are DERIVED from the Machado constants
+/// through this function, never hand-literals: a blend/gamma-space
+/// regression in the graded route (e.g. a non-sRGB SCENE view
+/// losing the decode) shifts the stored bytes far past the ±2
+/// rounding tolerance and fails here (M3 review 2026-06-12 — the
+/// prior r>200/g>150 thresholds passed a sRGB-space-applied
+/// matrix).
+// The clamp to [0,1] bounds s*255 within u8 range; the cast is the
+// storage conversion itself.
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn srgb_encode_u8(linear: f32) -> u8 {
+    let c = linear.clamp(0.0, 1.0);
+    let s = if c <= 0.003_130_8 {
+        12.92 * c
+    } else {
+        1.055 * c.powf(1.0 / 2.4) - 0.055
+    };
+    (s * 255.0).round() as u8
+}
+
+fn assert_pixel_close(got: [u8; 4], expected_rgb: [u8; 3], label: &str) {
+    let mut failures: Vec<(&str, u8, u8)> = Vec::new();
+    for (channel, (g, e)) in ["R", "G", "B"].iter().zip(got.iter().zip(expected_rgb.iter())) {
+        if (i32::from(*g) - i32::from(*e)).abs() > 2 {
+            failures.push((channel, *g, *e));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "{label}: channels off by more than ±2 (channel, got, expected): {failures:?}"
+    );
+}
+
 #[test]
 fn colorblind_mode_none_passes_green_through() {
-    let pixels = run_colorblind(colorblind::ColorblindMode::None);
-    let [r, g, b, _] = center_pixel(&pixels);
-    assert!(r < 30, "mode none must keep red dark, got R={r}");
-    assert!(g > 200, "mode none must keep green bright, got G={g}");
-    assert!(b < 30, "mode none must keep blue dark, got B={b}");
+    let pixels = run_colorblind(colorblind::ColorblindParams::new(
+        colorblind::ColorblindMode::None,
+    ));
+    // Pass-through is byte-exact modulo rounding: pure green in,
+    // pure green stored.
+    assert_pixel_close(center_pixel(&pixels), [0, 255, 0], "mode none");
 }
 
 #[test]
 fn colorblind_protanopia_transforms_pure_green_per_machado() {
-    let pixels = run_colorblind(colorblind::ColorblindMode::Protanopia);
-    let [r, g, b, _] = center_pixel(&pixels);
-    // Pure green through the protanopia matrix: r' = 1.052583
-    // (clamps to 1.0), g' = 0.786281, b' = -0.048116 (clamps to
-    // 0.0) — the red channel saturating is the fingerprint.
-    assert!(r > 200, "protanopia must saturate red for pure green, got R={r}");
-    assert!(g > 150, "protanopia keeps most green, got G={g}");
-    assert!(b < 30, "protanopia clamps blue to zero, got B={b}");
+    let pixels = run_colorblind(colorblind::ColorblindParams::new(
+        colorblind::ColorblindMode::Protanopia,
+    ));
+    // Pure green selects the matrix's middle column; expected
+    // stored bytes derive from the SAME constants the shader pins
+    // (r' = 1.052583 clamps to 1.0, g' = 0.786281 → sRGB-encoded,
+    // b' = -0.048116 clamps to 0.0).
+    let expected = [
+        srgb_encode_u8(colorblind::MACHADO_PROTANOPIA[0][1]),
+        srgb_encode_u8(colorblind::MACHADO_PROTANOPIA[1][1]),
+        srgb_encode_u8(colorblind::MACHADO_PROTANOPIA[2][1]),
+    ];
+    assert_pixel_close(center_pixel(&pixels), expected, "protanopia");
+}
+
+#[test]
+fn out_of_contract_mode_word_degrades_to_pass_through() {
+    // The Pod bytes ingress mints a mode word the constructor never
+    // produces; the WGSL's explicit default arm must render it as
+    // pass-through — the former catch-all silently simulated
+    // Tritanopia for every word >= 3.
+    let params: colorblind::ColorblindParams = bytemuck::cast([7_u32, 0, 0, 0]);
+    let pixels = run_colorblind(params);
+    assert_pixel_close(center_pixel(&pixels), [0, 255, 0], "mode 7 (out of contract)");
 }
 
 #[test]
@@ -215,4 +266,28 @@ fn texture_pool_reuses_released_textures_by_key() {
     assert_eq!(pool.free_count(), 1, "mismatched key must not consume the free list");
     pool.release(other);
     assert_eq!(pool.free_count(), 2);
+}
+
+#[test]
+fn retain_evicts_stale_size_buckets() {
+    // The live-resize discipline: after the surface size changes,
+    // the consumer retains only current-size buckets — stale-size
+    // textures must not survive (the unbounded-growth leak class).
+    let gpu = pollster::block_on(GpuContext::new()).expect("gpu");
+    let format = wgpu::TextureFormat::Rgba8UnormSrgb;
+    let mut pool = TexturePool::new();
+
+    let old = pool.lease(&gpu.device, TextureKey::offscreen(32, 32, format));
+    pool.release(old);
+    let new = pool.lease(&gpu.device, TextureKey::offscreen(64, 64, format));
+    pool.release(new);
+    assert_eq!(pool.free_count(), 2);
+
+    pool.retain(|k| k.width == 64 && k.height == 64);
+    assert_eq!(pool.free_count(), 1, "stale 32x32 bucket must be evicted");
+
+    // The surviving bucket still serves leases.
+    let reused = pool.lease(&gpu.device, TextureKey::offscreen(64, 64, format));
+    assert_eq!(pool.free_count(), 0, "retained texture must be reused, not reallocated");
+    pool.release(reused);
 }

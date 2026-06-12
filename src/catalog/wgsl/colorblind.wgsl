@@ -40,11 +40,18 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
         out_r = 0.367322 * r + 0.860646 * g - 0.227968 * b;
         out_g = 0.280085 * r + 0.672501 * g + 0.047413 * b;
         out_b = -0.011820 * r + 0.042940 * g + 0.968881 * b;
-    } else {
+    } else if params.mode == 3u {
         // Tritanopia (blue-blind)
         out_r = 1.255528 * r - 0.076749 * g - 0.178779 * b;
         out_g = -0.078411 * r + 0.930809 * g + 0.147602 * b;
         out_b = 0.004733 * r + 0.691367 * g + 0.303900 * b;
+    } else {
+        // Out-of-contract mode words (a Pod-cast bypass of
+        // ColorblindParams::new can mint any u32) degrade to
+        // pass-through — never to a silent Tritanopia, which is
+        // what the former catch-all `else` rendered (M3 review
+        // 2026-06-12).
+        return color;
     }
 
     return vec4(clamp(out_r, 0.0, 1.0), clamp(out_g, 0.0, 1.0), clamp(out_b, 0.0, 1.0), color.a);
