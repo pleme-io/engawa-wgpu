@@ -439,9 +439,10 @@ checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 
 [[package]]
 name = "engawa"
-version = "0.1.1"
-source = "git+https://github.com/pleme-io/engawa#b99c35ce5ca9535c80fcff86dab1f9c2710c12b4"
+version = "0.1.2"
+source = "git+https://github.com/pleme-io/engawa#df7aebe159601d32f0f305a27f841ea5622a43e6"
 dependencies = [
+ "pleme-allvariants-derive",
  "serde",
  "thiserror 2.0.18",
 ]

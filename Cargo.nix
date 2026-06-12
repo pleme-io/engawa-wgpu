@@ -198,7 +198,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "jni";
@@ -443,11 +443,11 @@ rec {
         };
         resolvedDefaultFeatures = [ "default" ];
       };
-      "bitflags 2.11.1" = rec {
+      "bitflags 2.12.1" = rec {
         crateName = "bitflags";
-        version = "2.11.1";
+        version = "2.12.1";
         edition = "2021";
-        sha256 = "1cvqijg3rvwgis20a66vfdxannjsxfy5fgjqkaq3l13gyfcj4lf4";
+        sha256 = "02phhjm7w380zdh8928zf13cfi1bw2qz2ay36ml2jmwmmv8cxmw4";
         authors = [
           "The Rust Project Developers"
         ];
@@ -652,7 +652,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "log";
@@ -1036,7 +1036,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "fontdb";
@@ -1326,18 +1326,22 @@ rec {
       };
       "engawa" = rec {
         crateName = "engawa";
-        version = "0.1.1";
+        version = "0.1.2";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/engawa";
-          rev = "5e9bf08543078c73fa0d4497413e91c6a4d3240c";
-          sha256 = "1vs94mjffv3xkgnk72sc9kapmw61zidyg3f0c0bz6jvqwg29rb97";
+          rev = "df7aebe159601d32f0f305a27f841ea5622a43e6";
+          sha256 = "1hby1r3c3bwm9jfmg2zh5mg2klhjmxhah71iakhl6b7b5iix4l62";
         };
         authors = [
           "pleme-io"
         ];
         dependencies = [
+          {
+            name = "pleme-allvariants-derive";
+            packageId = "pleme-allvariants-derive";
+          }
           {
             name = "serde";
             packageId = "serde";
@@ -1361,8 +1365,17 @@ rec {
         ];
         dependencies = [
           {
+            name = "bytemuck";
+            packageId = "bytemuck";
+            features = [ "derive" ];
+          }
+          {
             name = "engawa";
             packageId = "engawa";
+          }
+          {
+            name = "pleme-allvariants-derive";
+            packageId = "pleme-allvariants-derive";
           }
           {
             name = "thiserror";
@@ -1748,8 +1761,8 @@ rec {
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/garasu";
-          rev = "a1ce77d99a43395b1d881be67a062ec86867c4f3";
-          sha256 = "1zc2j553nxi7f0fqnshfrls45mxjk9q3rmnsz5pk2sv3q4l92lrl";
+          rev = "61dd498a9be57751491236cead1778c55b347e70";
+          sha256 = "19kh5d0d4y6i3sp1hj3fqxsafvw3jwpyzy5y0ds72ridghb69qbp";
         };
         dependencies = [
           {
@@ -2076,7 +2089,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
           {
@@ -2103,7 +2116,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
         ];
@@ -2169,7 +2182,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
           {
@@ -2202,7 +2215,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
         ];
@@ -2700,7 +2713,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
           }
           {
@@ -2805,9 +2818,9 @@ rec {
       };
       "log" = rec {
         crateName = "log";
-        version = "0.4.30";
+        version = "0.4.31";
         edition = "2021";
-        sha256 = "1rd6sw3gv9hb93464w7x3sip99zf8sjagm662r2ckg14b1lcavk1";
+        sha256 = "0kq2fh6q2bjkrm8m6hj8kb7gxfd7cr7qbcpxd1lc1xq5rns30fqi";
         authors = [
           "The Rust Project Developers"
         ];
@@ -2907,7 +2920,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "block";
@@ -2963,7 +2976,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "codespan-reporting";
@@ -3077,7 +3090,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "jni-sys";
@@ -3376,7 +3389,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -3716,7 +3729,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -3873,7 +3886,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -4109,7 +4122,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -4244,7 +4257,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -4331,7 +4344,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -4427,7 +4440,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -4913,7 +4926,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             optional = true;
             usesDefaultFeatures = false;
           }
@@ -5249,6 +5262,35 @@ rec {
         ];
 
       };
+      "pleme-allvariants-derive" = rec {
+        crateName = "pleme-allvariants-derive";
+        version = "0.1.0";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/pleme-allvariants-derive";
+          rev = "c66f20d1dc5727cfa0d1f83a02a28609a13387ec";
+          sha256 = "11j1s270yizlc72hz946ifn8yz32h1gvyn7brpf4r32dfiwvf8sy";
+        };
+        procMacro = true;
+        libName = "pleme_allvariants_derive";
+        dependencies = [
+          {
+            name = "proc-macro2";
+            packageId = "proc-macro2";
+          }
+          {
+            name = "quote";
+            packageId = "quote";
+          }
+          {
+            name = "syn";
+            packageId = "syn";
+            features = [ "full" "extra-traits" ];
+          }
+        ];
+
+      };
       "polling" = rec {
         crateName = "polling";
         version = "3.11.0";
@@ -5557,7 +5599,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
         ];
         features = {
@@ -5579,7 +5621,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
         ];
         features = {
@@ -5699,7 +5741,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
           {
@@ -5810,7 +5852,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             usesDefaultFeatures = false;
           }
           {
@@ -5928,7 +5970,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "bytemuck";
@@ -6340,7 +6382,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "calloop";
@@ -6465,7 +6507,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
         ];
         features = {
@@ -7523,7 +7565,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "rustix";
@@ -7558,7 +7600,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "cursor-icon";
@@ -7610,7 +7652,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "wayland-backend";
@@ -7646,7 +7688,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "wayland-backend";
@@ -7686,7 +7728,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "wayland-backend";
@@ -8321,7 +8363,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "document-features";
@@ -8509,7 +8551,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "document-features";
@@ -8743,7 +8785,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "block";
@@ -9001,7 +9043,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
             features = [ "serde" ];
           }
           {
@@ -10846,7 +10888,7 @@ rec {
           }
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "block2";
@@ -11344,7 +11386,7 @@ rec {
         dependencies = [
           {
             name = "bitflags";
-            packageId = "bitflags 2.11.1";
+            packageId = "bitflags 2.12.1";
           }
           {
             name = "dlib";
