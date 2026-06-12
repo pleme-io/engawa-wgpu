@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "cargo_lock_sha256": "3e5e72d1530cafcfee6177888688df44010bf1de53f1c34fc51b40f12f2ce05e",
+  "cargo_lock_sha256": "860a491b6d317323a193f549adea8978fac874128d1f27f0c4aaeff8cb0bc22c",
   "target_resolves": {
     "base": {
       "arrayref-0.3.9": {
@@ -77,7 +77,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "bitflags-2.12.1": {
+      "bitflags-2.13.0": {
         "runtime_dependencies": [
           {
             "name": "serde_core",
@@ -155,7 +155,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "cc-1.2.63": {
+      "cc-1.2.64": {
         "runtime_dependencies": [
           {
             "name": "find_msvc_tools",
@@ -266,7 +266,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -286,7 +286,7 @@
           },
           {
             "name": "log",
-            "package_key": "log-0.4.31",
+            "package_key": "log-0.4.32",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -348,7 +348,7 @@
           },
           {
             "name": "swash",
-            "package_key": "swash-0.2.7",
+            "package_key": "swash-0.2.9",
             "kind": "normal",
             "features": [
               "render",
@@ -506,7 +506,7 @@
           "std"
         ]
       },
-      "engawa-0.1.2-df7aebe159601d32f0f305a27f841ea5622a43e6": {
+      "engawa-0.1.3-772fbf0357d3bc3e90786ffb5e8a5a8b5ddb8f44": {
         "runtime_dependencies": [
           {
             "name": "pleme_allvariants_derive",
@@ -544,7 +544,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "engawa-wgpu-0.1.2": {
+      "engawa-wgpu-0.1.3": {
         "runtime_dependencies": [
           {
             "name": "bytemuck",
@@ -560,7 +560,7 @@
           },
           {
             "name": "engawa",
-            "package_key": "engawa-0.1.2-df7aebe159601d32f0f305a27f841ea5622a43e6",
+            "package_key": "engawa-0.1.3-772fbf0357d3bc3e90786ffb5e8a5a8b5ddb8f44",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -686,7 +686,7 @@
           "std"
         ]
       },
-      "garasu-0.1.0-61dd498a9be57751491236cead1778c55b347e70": {
+      "garasu-0.1.0-bfda319bf2009bfab8c482e328d0274aae9727f5": {
         "runtime_dependencies": [
           {
             "name": "bincode",
@@ -884,7 +884,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -913,7 +913,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -929,7 +929,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -970,7 +970,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -1006,7 +1006,7 @@
           },
           {
             "name": "zerocopy",
-            "package_key": "zerocopy-0.8.50",
+            "package_key": "zerocopy-0.8.52",
             "kind": "normal",
             "features": [
               "derive",
@@ -1209,7 +1209,7 @@
           "default"
         ]
       },
-      "log-0.4.31": {
+      "log-0.4.32": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
@@ -1259,7 +1259,7 @@
           },
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1324,7 +1324,7 @@
           },
           {
             "name": "log",
-            "package_key": "log-0.4.31",
+            "package_key": "log-0.4.32",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1544,7 +1544,7 @@
           },
           {
             "name": "smallvec",
-            "package_key": "smallvec-1.15.1",
+            "package_key": "smallvec-1.15.2",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1666,7 +1666,7 @@
           "std"
         ]
       },
-      "read-fonts-0.37.0": {
+      "read-fonts-0.39.2": {
         "runtime_dependencies": [
           {
             "name": "bytemuck",
@@ -1721,7 +1721,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1753,7 +1753,7 @@
           },
           {
             "name": "smallvec",
-            "package_key": "smallvec-1.15.1",
+            "package_key": "smallvec-1.15.2",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1925,7 +1925,7 @@
           "std"
         ]
       },
-      "skrifa-0.40.0": {
+      "skrifa-0.42.1": {
         "runtime_dependencies": [
           {
             "name": "bytemuck",
@@ -1939,7 +1939,7 @@
           },
           {
             "name": "read_fonts",
-            "package_key": "read-fonts-0.37.0",
+            "package_key": "read-fonts-0.39.2",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -1972,7 +1972,7 @@
           "std"
         ]
       },
-      "smallvec-1.15.1": {
+      "smallvec-1.15.2": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": [
@@ -2004,7 +2004,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2104,11 +2104,11 @@
         "build_dependencies": [],
         "features": []
       },
-      "swash-0.2.7": {
+      "swash-0.2.9": {
         "runtime_dependencies": [
           {
             "name": "skrifa",
-            "package_key": "skrifa-0.40.0",
+            "package_key": "skrifa-0.42.1",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -2479,7 +2479,7 @@
           },
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2512,7 +2512,7 @@
           },
           {
             "name": "log",
-            "package_key": "log-0.4.31",
+            "package_key": "log-0.4.32",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2562,7 +2562,7 @@
           },
           {
             "name": "smallvec",
-            "package_key": "smallvec-1.15.1",
+            "package_key": "smallvec-1.15.2",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2572,7 +2572,7 @@
           },
           {
             "name": "smallvec",
-            "package_key": "smallvec-1.15.1",
+            "package_key": "smallvec-1.15.2",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2687,7 +2687,7 @@
         "runtime_dependencies": [
           {
             "name": "bitflags",
-            "package_key": "bitflags-2.12.1",
+            "package_key": "bitflags-2.13.0",
             "kind": "normal",
             "features": [
               "serde"
@@ -2713,7 +2713,7 @@
           },
           {
             "name": "log",
-            "package_key": "log-0.4.31",
+            "package_key": "log-0.4.32",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2754,11 +2754,11 @@
           "std"
         ]
       },
-      "zerocopy-0.8.50": {
+      "zerocopy-0.8.52": {
         "runtime_dependencies": [
           {
             "name": "zerocopy_derive",
-            "package_key": "zerocopy-derive-0.8.50",
+            "package_key": "zerocopy-derive-0.8.52",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2768,7 +2768,7 @@
           },
           {
             "name": "zerocopy_derive",
-            "package_key": "zerocopy-derive-0.8.50",
+            "package_key": "zerocopy-derive-0.8.52",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -2784,7 +2784,7 @@
           "zerocopy-derive"
         ]
       },
-      "zerocopy-derive-0.8.50": {
+      "zerocopy-derive-0.8.52": {
         "runtime_dependencies": [
           {
             "name": "proc_macro2",
@@ -2879,7 +2879,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -3061,7 +3061,7 @@
             "runtime_dependencies": [
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -3217,7 +3217,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -3257,7 +3257,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -3351,7 +3351,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -3468,7 +3468,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -3578,7 +3578,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -3680,7 +3680,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -3734,7 +3734,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -3832,7 +3832,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -3875,7 +3875,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -3947,7 +3947,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4066,7 +4066,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4213,7 +4213,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4303,7 +4303,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -4360,7 +4360,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4593,7 +4593,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -4780,7 +4780,7 @@
             "runtime_dependencies": [
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4936,7 +4936,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -4976,7 +4976,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -5070,7 +5070,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -5187,7 +5187,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -5297,7 +5297,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -5399,7 +5399,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -5453,7 +5453,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -5551,7 +5551,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -5594,7 +5594,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -5666,7 +5666,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -5785,7 +5785,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -5932,7 +5932,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6022,7 +6022,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -6079,7 +6079,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6324,7 +6324,7 @@
               },
               {
                 "name": "zerocopy",
-                "package_key": "zerocopy-0.8.50",
+                "package_key": "zerocopy-0.8.52",
                 "kind": "normal",
                 "features": [
                   "simd"
@@ -6419,7 +6419,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -6437,7 +6437,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6447,7 +6447,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6649,7 +6649,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6858,7 +6858,7 @@
               "xdp"
             ]
           },
-          "memchr-2.8.1": {
+          "memchr-2.8.2": {
             "runtime_dependencies": [],
             "build_dependencies": [],
             "features": [
@@ -6937,7 +6937,7 @@
             "runtime_dependencies": [
               {
                 "name": "memchr",
-                "package_key": "memchr-2.8.1",
+                "package_key": "memchr-2.8.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -6964,7 +6964,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -7063,7 +7063,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -7176,7 +7176,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7233,7 +7233,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7283,7 +7283,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7515,7 +7515,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7629,7 +7629,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union",
@@ -7655,7 +7655,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -7673,7 +7673,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7721,7 +7721,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7795,7 +7795,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7846,7 +7846,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -7905,7 +7905,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8010,7 +8010,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8081,7 +8081,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8124,7 +8124,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8196,7 +8196,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8318,7 +8318,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8445,7 +8445,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8515,7 +8515,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -8584,7 +8584,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -8998,7 +8998,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9018,7 +9018,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9136,7 +9136,7 @@
               },
               {
                 "name": "zerocopy",
-                "package_key": "zerocopy-0.8.50",
+                "package_key": "zerocopy-0.8.52",
                 "kind": "normal",
                 "features": [
                   "simd"
@@ -9231,7 +9231,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -9249,7 +9249,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9259,7 +9259,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9461,7 +9461,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9670,7 +9670,7 @@
               "xdp"
             ]
           },
-          "memchr-2.8.1": {
+          "memchr-2.8.2": {
             "runtime_dependencies": [],
             "build_dependencies": [],
             "features": [
@@ -9749,7 +9749,7 @@
             "runtime_dependencies": [
               {
                 "name": "memchr",
-                "package_key": "memchr-2.8.1",
+                "package_key": "memchr-2.8.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -9776,7 +9776,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -9875,7 +9875,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -9988,7 +9988,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10045,7 +10045,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10095,7 +10095,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10327,7 +10327,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10441,7 +10441,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union",
@@ -10467,7 +10467,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -10485,7 +10485,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10533,7 +10533,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10607,7 +10607,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10658,7 +10658,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10717,7 +10717,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10822,7 +10822,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10893,7 +10893,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -10936,7 +10936,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11008,7 +11008,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11130,7 +11130,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11257,7 +11257,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11327,7 +11327,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -11396,7 +11396,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11810,7 +11810,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11830,7 +11830,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -11948,7 +11948,7 @@
               },
               {
                 "name": "zerocopy",
-                "package_key": "zerocopy-0.8.50",
+                "package_key": "zerocopy-0.8.52",
                 "kind": "normal",
                 "features": [
                   "simd"
@@ -12033,7 +12033,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -12051,7 +12051,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12061,7 +12061,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12258,7 +12258,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12467,7 +12467,7 @@
               "xdp"
             ]
           },
-          "memchr-2.8.1": {
+          "memchr-2.8.2": {
             "runtime_dependencies": [],
             "build_dependencies": [],
             "features": [
@@ -12546,7 +12546,7 @@
             "runtime_dependencies": [
               {
                 "name": "memchr",
-                "package_key": "memchr-2.8.1",
+                "package_key": "memchr-2.8.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12573,7 +12573,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -12672,7 +12672,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -12785,7 +12785,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12842,7 +12842,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -12892,7 +12892,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13124,7 +13124,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13238,7 +13238,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union",
@@ -13264,7 +13264,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -13282,7 +13282,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13330,7 +13330,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13404,7 +13404,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13455,7 +13455,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13514,7 +13514,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13619,7 +13619,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13690,7 +13690,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13733,7 +13733,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13805,7 +13805,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -13927,7 +13927,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14054,7 +14054,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14124,7 +14124,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -14193,7 +14193,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14607,7 +14607,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14627,7 +14627,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14745,7 +14745,7 @@
               },
               {
                 "name": "zerocopy",
-                "package_key": "zerocopy-0.8.50",
+                "package_key": "zerocopy-0.8.52",
                 "kind": "normal",
                 "features": [
                   "simd"
@@ -14830,7 +14830,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -14848,7 +14848,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14858,7 +14858,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15055,7 +15055,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15264,7 +15264,7 @@
               "xdp"
             ]
           },
-          "memchr-2.8.1": {
+          "memchr-2.8.2": {
             "runtime_dependencies": [],
             "build_dependencies": [],
             "features": [
@@ -15343,7 +15343,7 @@
             "runtime_dependencies": [
               {
                 "name": "memchr",
-                "package_key": "memchr-2.8.1",
+                "package_key": "memchr-2.8.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15370,7 +15370,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -15469,7 +15469,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": false,
@@ -15582,7 +15582,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15639,7 +15639,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15689,7 +15689,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -15921,7 +15921,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16035,7 +16035,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union",
@@ -16061,7 +16061,7 @@
             "build_dependencies": [
               {
                 "name": "cc",
-                "package_key": "cc-1.2.63",
+                "package_key": "cc-1.2.64",
                 "kind": "build",
                 "features": [],
                 "uses_default_features": true,
@@ -16079,7 +16079,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16127,7 +16127,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16201,7 +16201,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16252,7 +16252,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16311,7 +16311,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16416,7 +16416,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16487,7 +16487,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16530,7 +16530,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16602,7 +16602,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16724,7 +16724,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16851,7 +16851,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16921,7 +16921,7 @@
               },
               {
                 "name": "smallvec",
-                "package_key": "smallvec-1.15.1",
+                "package_key": "smallvec-1.15.2",
                 "kind": "normal",
                 "features": [
                   "union"
@@ -16990,7 +16990,7 @@
               },
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17404,7 +17404,7 @@
             "runtime_dependencies": [
               {
                 "name": "bitflags",
-                "package_key": "bitflags-2.12.1",
+                "package_key": "bitflags-2.13.0",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17424,7 +17424,7 @@
               },
               {
                 "name": "log",
-                "package_key": "log-0.4.31",
+                "package_key": "log-0.4.32",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17503,7 +17503,7 @@
     "bit-vec-0.8.0": {
       "edition": "2015"
     },
-    "bitflags-2.12.1": {
+    "bitflags-2.13.0": {
       "edition": "2021"
     },
     "blake3-1.8.5": {
@@ -17523,7 +17523,7 @@
     "calloop-wayland-source-0.3.0": {
       "edition": "2021"
     },
-    "cc-1.2.63": {
+    "cc-1.2.64": {
       "edition": "2018"
     },
     "cfg-if-1.0.4": {
@@ -17570,10 +17570,10 @@
     "dpi-0.1.2": {
       "edition": "2021"
     },
-    "engawa-0.1.2-df7aebe159601d32f0f305a27f841ea5622a43e6": {
+    "engawa-0.1.3-772fbf0357d3bc3e90786ffb5e8a5a8b5ddb8f44": {
       "edition": "2024"
     },
-    "engawa-wgpu-0.1.2": {
+    "engawa-wgpu-0.1.3": {
       "edition": "2024",
       "lib_target": {
         "name": "engawa_wgpu",
@@ -17607,7 +17607,7 @@
     "fontdb-0.16.2": {
       "edition": "2018"
     },
-    "garasu-0.1.0-61dd498a9be57751491236cead1778c55b347e70": {
+    "garasu-0.1.0-bfda319bf2009bfab8c482e328d0274aae9727f5": {
       "edition": "2024"
     },
     "gethostname-1.1.0": {
@@ -17683,13 +17683,13 @@
     "lock_api-0.4.14": {
       "edition": "2021"
     },
-    "log-0.4.31": {
+    "log-0.4.32": {
       "edition": "2021"
     },
     "lru-0.12.5": {
       "edition": "2015"
     },
-    "memchr-2.8.1": {
+    "memchr-2.8.2": {
       "edition": "2021"
     },
     "memmap2-0.9.10": {
@@ -17761,7 +17761,7 @@
     "raw-window-handle-0.6.2": {
       "edition": "2021"
     },
-    "read-fonts-0.37.0": {
+    "read-fonts-0.39.2": {
       "edition": "2021"
     },
     "renderdoc-sys-1.1.0": {
@@ -17819,7 +17819,7 @@
     "shlex-2.0.1": {
       "edition": "2018"
     },
-    "skrifa-0.40.0": {
+    "skrifa-0.42.1": {
       "edition": "2021"
     },
     "slab-0.4.12": {
@@ -17829,7 +17829,7 @@
       "edition": "2018",
       "build_script": "build.rs"
     },
-    "smallvec-1.15.1": {
+    "smallvec-1.15.2": {
       "edition": "2018"
     },
     "smithay-client-toolkit-0.19.2": {
@@ -17862,7 +17862,7 @@
     "svg_fmt-0.4.5": {
       "edition": "2018"
     },
-    "swash-0.2.7": {
+    "swash-0.2.9": {
       "edition": "2021"
     },
     "syn-2.0.117": {
@@ -18053,11 +18053,11 @@
     "zeno-0.3.3": {
       "edition": "2021"
     },
-    "zerocopy-0.8.50": {
+    "zerocopy-0.8.52": {
       "edition": "2021",
       "build_script": "build.rs"
     },
-    "zerocopy-derive-0.8.50": {
+    "zerocopy-derive-0.8.52": {
       "edition": "2021",
       "proc_macro": true
     },
@@ -18143,8 +18143,8 @@
     }
   },
   "git_nar_sha256": {
-    "engawa-0.1.2-df7aebe159601d32f0f305a27f841ea5622a43e6": "sha256-wlDSYyzrLEPhVDEcqGCvEtIpXi3wi1edTJWvwUYOfsE=",
-    "garasu-0.1.0-61dd498a9be57751491236cead1778c55b347e70": "sha256-d+FkFnwtZnF0A7747y+Xg2+ndMduSBiuHtF40kArcKY=",
+    "engawa-0.1.3-772fbf0357d3bc3e90786ffb5e8a5a8b5ddb8f44": "sha256-Z/9e7dBdWUbCQW63K36IPXkLFpUYLmrSVetj8/eb82k=",
+    "garasu-0.1.0-bfda319bf2009bfab8c482e328d0274aae9727f5": "sha256-34gu1b8MsAl3BAG+e9fWLZIjVcBf+Cmd4IMMnfnq4xc=",
     "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec": "sha256-XiO3eXRNjEzczetYv1+AYnyPrIuGpA/FYfRHD47QQYY="
   },
   "flake_metadata": {}
