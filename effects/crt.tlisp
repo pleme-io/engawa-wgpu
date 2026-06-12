@@ -1,0 +1,15 @@
+; engawa-wgpu effect catalog — crt (barrel curvature + chromatic
+; aberration + vignette).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<CrtParams>() matches.
+
+(defeffect crt
+  (priority 650)
+  (params-size 32)
+  (params-resource "crt:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "crt:params")))

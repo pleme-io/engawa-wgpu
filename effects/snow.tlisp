@@ -1,0 +1,20 @@
+; engawa-wgpu effect catalog — snow (parallax fractal flakes +
+; particle pile, absorbed from engawa-snow; the catalog copy
+; composites in-shader instead of relying on hardware blending).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<SnowParams>() matches. Layout (4 × vec4<f32>):
+;   frame      = (time, intensity, wind, typing_pulse)
+;   params     = (accumulation, layer_count, temperature, _)
+;   resolution = (width, height, _, _)
+;   cursor     = (x, y, _, _)
+
+(defeffect snow
+  (priority 500)
+  (params-size 64)
+  (params-resource "snow:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "snow:params")))

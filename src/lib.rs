@@ -27,6 +27,7 @@
 #![forbid(unsafe_code)]
 #![doc(html_root_url = "https://docs.rs/engawa-wgpu/0.1.0")]
 
+pub mod catalog;
 mod dispatcher;
 mod pipeline;
 mod pool;

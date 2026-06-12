@@ -1,0 +1,16 @@
+; engawa-wgpu effect catalog — glow_on_bell (radial gaussian glow
+; driven by a bell_intensity uniform; the consumer supplies the
+; clock — set 1.0 on BEL, decay per frame on the host).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<GlowOnBellParams>() matches.
+
+(defeffect glow_on_bell
+  (priority 400)
+  (params-size 32)
+  (params-resource "glow_on_bell:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "glow_on_bell:params")))
