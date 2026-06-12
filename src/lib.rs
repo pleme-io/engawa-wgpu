@@ -12,10 +12,16 @@
 //! with the operator's WGSL providing the fragment. Compute and
 //! blit passes are pending — same trait, follow-on work.
 //!
-//! **Scope (NOT v0.1):** texture allocation, swapchain
-//! management, bind-group authoring. Engawa's `ResourceBindings`
-//! is the operator-facing handoff for those — the consumer
-//! allocates / reuses wgpu textures + binds them to engawa
+//! **Per-call dispatch is canonical:** `WgpuDispatcher::new`
+//! clones the (internally reference-counted) device/queue
+//! handles — no lifetime borrow — and `dispatch_with` takes the
+//! graph + bindings + live handles + per-frame [`FrameUniforms`]
+//! every call. Offscreen ping-pong textures come from the
+//! [`TexturePool`] lease API.
+//!
+//! **Scope (NOT v0.1):** swapchain management, bind-group
+//! authoring. Engawa's `ResourceBindings` is the operator-facing
+//! handoff for those — the consumer binds wgpu handles to engawa
 //! `ResourceId`s. This crate dispatches; the consumer feeds it.
 
 #![forbid(unsafe_code)]
@@ -23,8 +29,10 @@
 
 mod dispatcher;
 mod pipeline;
+mod pool;
 
 pub use dispatcher::{
-    BoundResource, BoundResources, WgpuDispatcher, WgpuDispatcherError,
+    BoundResource, BoundResources, FrameUniforms, WgpuDispatcher, WgpuDispatcherError,
 };
 pub use pipeline::{combined_shader_source, FULLSCREEN_VERTEX_WGSL};
+pub use pool::{TextureKey, TextureLease, TexturePool};

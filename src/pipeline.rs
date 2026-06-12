@@ -2,7 +2,7 @@
 //! construction helpers.
 
 /// The canonical fullscreen triangle: three vertices in clip
-/// space (no buffers needed). vertex_index 0/1/2 maps to
+/// space (no buffers needed). `vertex_index` 0/1/2 maps to
 /// (-1,-1) / (3,-1) / (-1,3), which fully covers [-1, 1]² with
 /// no overdraw beyond the viewport.
 ///

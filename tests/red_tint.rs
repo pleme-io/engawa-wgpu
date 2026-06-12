@@ -1,11 +1,11 @@
 //! L2 GPU pixel test: build a tiny one-effect graph that
-//! paints a red-tinted fullscreen pass into a HeadlessTarget,
+//! paints a red-tinted fullscreen pass into a `HeadlessTarget`,
 //! read pixels back, assert every pixel is red.
 
 #![cfg(feature = "gpu_tests")]
 
 use engawa::{Material, Node, RenderGraph, ResourceKind, ShaderSource};
-use engawa_wgpu::{BoundResource, BoundResources, WgpuDispatcher};
+use engawa_wgpu::{BoundResource, BoundResources, FrameUniforms, WgpuDispatcher};
 use garasu::headless::{frame_hash, HeadlessTarget};
 use garasu::GpuContext;
 
@@ -83,11 +83,59 @@ fn run_pipeline(target_format: wgpu::TextureFormat) -> Vec<u8> {
             },
         );
     let cmd = dispatcher
-        .dispatch_with(&graph, engawa_bindings, bound)
+        .dispatch_with(&graph, &engawa_bindings, bound, &FrameUniforms::new())
         .expect("dispatch");
     gpu.queue.submit(std::iter::once(cmd));
     let _ = gpu.device.poll(wgpu::PollType::Wait);
     target.read_pixels_rgba8(&gpu)
+}
+
+#[test]
+fn pipeline_cache_is_keyed_by_material_name_and_reused_across_dispatches() {
+    let target_format = wgpu::TextureFormat::Rgba8UnormSrgb;
+    let gpu = pollster::block_on(GpuContext::new()).expect("gpu");
+    let target = HeadlessTarget::new(&gpu, 64, 64, target_format);
+    let graph = RenderGraph::default()
+        .with_resource(
+            "scene",
+            ResourceKind::Texture { width: Some(64), height: Some(64) },
+        )
+        .with_resource(
+            "out",
+            ResourceKind::Texture { width: Some(64), height: Some(64) },
+        )
+        .with_output("out")
+        .with_node(Node::clear("clear", "scene"))
+        .with_node(Node::fullscreen_effect("red", red_material(), "scene", "out"))
+        .compile()
+        .expect("compile");
+
+    let mut dispatcher = WgpuDispatcher::new(&gpu.device, &gpu.queue, target_format);
+    assert_eq!(dispatcher.cached_pipeline_count(), 0);
+    for round in 1..=2 {
+        let engawa_bindings = engawa::ResourceBindings::new()
+            .with("scene", engawa::ResourceHandle::Texture("scene".into()))
+            .with("out", engawa::ResourceHandle::Texture("out".into()));
+        let bound = BoundResources::new()
+            .with(
+                "scene",
+                BoundResource::Texture { view: target.view().clone(), format: target_format },
+            )
+            .with(
+                "out",
+                BoundResource::Texture { view: target.view().clone(), format: target_format },
+            );
+        let cmd = dispatcher
+            .dispatch_with(&graph, &engawa_bindings, bound, &FrameUniforms::new())
+            .expect("dispatch");
+        gpu.queue.submit(std::iter::once(cmd));
+        let _ = gpu.device.poll(wgpu::PollType::Wait);
+        assert_eq!(
+            dispatcher.cached_pipeline_count(),
+            1,
+            "round {round}: one Material (`red-tint`) must mean exactly one cached pipeline"
+        );
+    }
 }
 
 #[test]
@@ -100,8 +148,8 @@ fn red_tint_fullscreen_effect_paints_red_pixels() {
     // red (R high, G/B low). Pure 1.0/0.0/0.0/1.0 in sRGB
     // round-trips to (255, 0, 0, 255) after the storage
     // conversion.
-    for (x, y) in [(0, 0), (32, 32), (63, 63), (0, 63), (63, 0)] {
-        let i = ((y * 64 + x) * 4) as usize;
+    for (x, y) in [(0_usize, 0_usize), (32, 32), (63, 63), (0, 63), (63, 0)] {
+        let i = (y * 64 + x) * 4;
         assert!(
             pixels[i] > 200,
             "pixel ({x},{y}) R={}, expected > 200",
