@@ -7,10 +7,14 @@
 //! ## Quality tiers — the measured cost story
 //!
 //! [`AuroraQuality`] (uniform word `tier.x`) selects the
-//! cost/beauty point; the coarse perf smoke in
-//! `tests/catalog_gpu.rs` (`gpu_tests` feature) dispatches every
-//! tier on a real adapter and asserts the ordering Low ≤ Medium
-//! ≤ High:
+//! cost/beauty point. Two GPU suites in `tests/catalog_gpu.rs`
+//! (`gpu_tests` feature) pin the tier contract on a real
+//! adapter: the perf smoke dispatches every tier and asserts the
+//! cost ordering Off ≤ Low ≤ Medium ≤ High, and the pixel proofs
+//! read the rendered bytes back — Medium visibly draws above the
+//! horizon, the prompt area below the horizon stays scene
+//! byte-exact, and `Off` / out-of-contract words (≥ 4) return
+//! the scene:
 //!
 //! | tier | shader work per sky pixel | intent |
 //! |---|---|---|
