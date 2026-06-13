@@ -34,6 +34,7 @@ const MATRIX: &[MatrixRow] = &[
     MatrixRow { effect: CatalogEffect::Bloom, expected_nodes: 4 },
     MatrixRow { effect: CatalogEffect::GlowOnBell, expected_nodes: 1 },
     MatrixRow { effect: CatalogEffect::Snow, expected_nodes: 1 },
+    MatrixRow { effect: CatalogEffect::Aurora, expected_nodes: 1 },
 ];
 
 /// Typed failure rows — Debug-rendered in the final aggregate

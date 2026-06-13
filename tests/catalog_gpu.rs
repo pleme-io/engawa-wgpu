@@ -237,9 +237,9 @@ fn every_catalog_effect_dispatches_on_a_real_adapter() {
         failures.len(),
         failures
     );
-    // 5 single-material effects + bloom's 4 stages = 9 distinct
+    // 6 single-material effects + bloom's 4 stages = 10 distinct
     // pipelines, each compiled exactly once.
-    assert_eq!(dispatcher.cached_pipeline_count(), 9);
+    assert_eq!(dispatcher.cached_pipeline_count(), 10);
 }
 
 #[test]
@@ -290,4 +290,110 @@ fn retain_evicts_stale_size_buckets() {
     let reused = pool.lease(&gpu.device, TextureKey::offscreen(64, 64, format));
     assert_eq!(pool.free_count(), 0, "retained texture must be reused, not reallocated");
     pool.release(reused);
+}
+
+/// Coarse mechanical perf smoke for the aurora quality tiers:
+/// dispatch a batch of frames at Low / Medium / High on the real
+/// adapter, print the aggregate timings (informational), and
+/// assert the monotone cost ordering low <= med <= high.
+///
+/// This is an ORDERING proof, not an absolute-ms gate — wall
+/// clocks on shared CI adapters are too noisy for absolute
+/// budgets, so a slack factor absorbs timer jitter while still
+/// failing if a "cheaper" tier ever costs categorically more
+/// than a "richer" one (the tier contract inverting).
+// The u32→f32 / usize→f32 casts feed shader uniforms + timing
+// math where the precision loss is irrelevant.
+#[allow(clippy::cast_precision_loss)]
+#[test]
+fn aurora_tier_cost_is_monotone_low_med_high() {
+    use std::time::Instant;
+
+    use engawa_wgpu::catalog::aurora::{self, AuroraQuality};
+
+    // Big enough that per-pixel ALU dominates the per-frame
+    // submit/poll overhead; small enough to stay CI-friendly.
+    const PW: u32 = 1024;
+    const PH: u32 = 1024;
+    const WARMUP: usize = 8;
+    const FRAMES: usize = 64;
+    /// Timer-noise slack for the monotonicity assertion.
+    const SLACK: f64 = 1.25;
+
+    let format = wgpu::TextureFormat::Rgba8UnormSrgb;
+    let gpu = pollster::block_on(GpuContext::new()).expect("gpu");
+    let target = HeadlessTarget::new(&gpu, PW, PH, format);
+    let sampler = gpu.device.create_sampler(&wgpu::SamplerDescriptor {
+        label: Some("catalog sampler"),
+        ..wgpu::SamplerDescriptor::default()
+    });
+    let mut pool = TexturePool::new();
+    let scene_lease = pool.lease(&gpu.device, TextureKey::offscreen(PW, PH, format));
+    let mut dispatcher = WgpuDispatcher::new(&gpu.device, &gpu.queue, format);
+    let graph = CatalogEffect::Aurora
+        .graph()
+        .compile()
+        .expect("aurora graph compiles");
+    let params_buf = gpu.device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some(aurora::PARAMS_RESOURCE),
+        size: CatalogEffect::Aurora.params_size() as u64,
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+
+    let mut time_tier = |q: AuroraQuality| -> f64 {
+        let mut params = aurora::AuroraParams::default()
+            .with_resolution([PW as f32, PH as f32])
+            .with_quality(q)
+            .with_intensity(0.5);
+        let mut start = Instant::now();
+        for i in 0..(WARMUP + FRAMES) {
+            if i == WARMUP {
+                // Warmup absorbs pipeline compile + first-frame
+                // allocation; the timed window is steady-state.
+                start = Instant::now();
+            }
+            params.set_time(i as f32 / 60.0);
+            let bindings = engawa::ResourceBindings::new()
+                .with(SCENE, engawa::ResourceHandle::Texture(SCENE.into()))
+                .with(OUT, engawa::ResourceHandle::Texture(OUT.into()));
+            let bound = BoundResources::new()
+                .with(SCENE, scene_lease.bound_resource())
+                .with(OUT, BoundResource::Texture { view: target.view().clone(), format })
+                .with(CATALOG_SAMPLER, BoundResource::Sampler(sampler.clone()))
+                .with(aurora::PARAMS_RESOURCE, BoundResource::Uniform(params_buf.clone()));
+            let frame = FrameUniforms::new().with(aurora::PARAMS_RESOURCE, &params);
+            let cmd = dispatcher
+                .dispatch_with(&graph, &bindings, bound, &frame)
+                .expect("aurora dispatch");
+            gpu.queue.submit(std::iter::once(cmd));
+            // Per-frame wait serialises GPU work so the wall
+            // clock actually measures shader cost, not queueing.
+            let _ = gpu.device.poll(wgpu::PollType::Wait);
+        }
+        start.elapsed().as_secs_f64() * 1000.0
+    };
+
+    let low_ms = time_tier(AuroraQuality::Low);
+    let med_ms = time_tier(AuroraQuality::Medium);
+    let high_ms = time_tier(AuroraQuality::High);
+
+    eprintln!(
+        "aurora perf smoke ({FRAMES} frames @ {PW}x{PH}): \
+         low={low_ms:.2}ms ({:.3}ms/frame)  \
+         med={med_ms:.2}ms ({:.3}ms/frame)  \
+         high={high_ms:.2}ms ({:.3}ms/frame)",
+        low_ms / FRAMES as f64,
+        med_ms / FRAMES as f64,
+        high_ms / FRAMES as f64,
+    );
+
+    assert!(
+        low_ms <= med_ms * SLACK,
+        "tier cost inversion: Low ({low_ms:.2}ms) costs more than Medium ({med_ms:.2}ms) × slack"
+    );
+    assert!(
+        med_ms <= high_ms * SLACK,
+        "tier cost inversion: Medium ({med_ms:.2}ms) costs more than High ({high_ms:.2}ms) × slack"
+    );
 }

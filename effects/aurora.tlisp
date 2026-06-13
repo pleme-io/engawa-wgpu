@@ -1,0 +1,31 @@
+; engawa-wgpu effect catalog — aurora (the Borealis signature
+; curtain: slow-drifting vertical light bands with noise-driven
+; shimmer, concentrated toward the top of the frame above a
+; horizon line; quality tiers 0..3 select the measured cost
+; point — 0 off-equivalent pass-through, 1 low single-octave,
+; 2 medium 3-octave fbm, 3 high fbm + vertical ray march).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<AuroraParams>() matches. Layout (5 x vec4<f32> +
+; 1 x vec4<u32>):
+;   frame        = (time, intensity, drift, shimmer)
+;   geometry     = (horizon, band_scale, res_x, res_y)
+;   color_green  = oxygen-557.7nm curtain base (linear rgb, w unused)
+;   color_cyan   = high-altitude mid stop
+;   color_violet = nitrogen-violet edge stop
+;   tier         = (quality 0=off 1=low 2=medium 3=high, _, _, _)
+;
+; reduce_motion: the consumer omits the node entirely (zero
+; nodes) — same contract as snow + glow_on_bell. quality 0 is
+; the runtime perf-governor toggle (pass-through shader, still
+; one blit-cost pass); the accessibility path is node omission.
+
+(defeffect aurora
+  (priority 450)
+  (params-size 96)
+  (params-resource "aurora:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "aurora:params")))
