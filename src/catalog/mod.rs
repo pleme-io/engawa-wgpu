@@ -32,6 +32,7 @@
 //! [`SCENE`] → effect → [`OUT`]; consumers ping-pong via
 //! [`crate::TexturePool`] leases.
 
+pub mod aurora;
 pub mod bloom;
 pub mod colorblind;
 pub mod crt;
@@ -99,6 +100,7 @@ pub enum CatalogEffect {
     Bloom,
     GlowOnBell,
     Snow,
+    Aurora,
 }
 
 impl CatalogEffect {
@@ -113,6 +115,7 @@ impl CatalogEffect {
             Self::Bloom => bloom::EFFECT_NAME,
             Self::GlowOnBell => glow_on_bell::EFFECT_NAME,
             Self::Snow => snow::EFFECT_NAME,
+            Self::Aurora => aurora::EFFECT_NAME,
         }
     }
 
@@ -127,6 +130,7 @@ impl CatalogEffect {
             Self::Bloom => bloom::PRIORITY,
             Self::GlowOnBell => glow_on_bell::PRIORITY,
             Self::Snow => snow::PRIORITY,
+            Self::Aurora => aurora::PRIORITY,
         }
     }
 
@@ -140,6 +144,7 @@ impl CatalogEffect {
             Self::Bloom => bloom::PARAMS_RESOURCE,
             Self::GlowOnBell => glow_on_bell::PARAMS_RESOURCE,
             Self::Snow => snow::PARAMS_RESOURCE,
+            Self::Aurora => aurora::PARAMS_RESOURCE,
         }
     }
 
@@ -155,6 +160,7 @@ impl CatalogEffect {
             Self::Bloom => size_of::<bloom::BloomParams>(),
             Self::GlowOnBell => size_of::<glow_on_bell::GlowOnBellParams>(),
             Self::Snow => size_of::<snow::SnowParams>(),
+            Self::Aurora => size_of::<aurora::AuroraParams>(),
         }
     }
 
@@ -168,6 +174,7 @@ impl CatalogEffect {
             Self::Bloom => "effects/bloom.tlisp",
             Self::GlowOnBell => "effects/glow_on_bell.tlisp",
             Self::Snow => "effects/snow.tlisp",
+            Self::Aurora => "effects/aurora.tlisp",
         }
     }
 
@@ -190,6 +197,7 @@ impl CatalogEffect {
                 bytemuck::bytes_of(&glow_on_bell::GlowOnBellParams::default()).to_vec()
             }
             Self::Snow => bytemuck::bytes_of(&snow::SnowParams::default()).to_vec(),
+            Self::Aurora => bytemuck::bytes_of(&aurora::AuroraParams::default()).to_vec(),
         }
     }
 
@@ -206,6 +214,7 @@ impl CatalogEffect {
             Self::Bloom => bloom::effect(),
             Self::GlowOnBell => glow_on_bell::effect(),
             Self::Snow => snow::effect(),
+            Self::Aurora => aurora::effect(),
         }
     }
 
@@ -221,6 +230,7 @@ impl CatalogEffect {
             Self::Bloom => bloom::lower(input, output),
             Self::GlowOnBell => glow_on_bell::lower(input, output),
             Self::Snow => snow::lower(input, output),
+            Self::Aurora => aurora::lower(input, output),
         }
     }
 
@@ -249,7 +259,8 @@ impl CatalogEffect {
             | Self::Crt
             | Self::Scanlines
             | Self::GlowOnBell
-            | Self::Snow => Vec::new(),
+            | Self::Snow
+            | Self::Aurora => Vec::new(),
         }
     }
 
