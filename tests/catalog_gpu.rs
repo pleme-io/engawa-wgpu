@@ -1,15 +1,24 @@
 //! L2 GPU test — catalog end-to-end on a real adapter: a
-//! pool-leased scene texture → the colorblind catalog graph →
-//! `HeadlessTarget`, with `FrameUniforms` carrying the mode.
+//! pool-leased scene texture → a catalog graph → `HeadlessTarget`,
+//! with `FrameUniforms` carrying the params, and the rendered
+//! BYTES read back and asserted (pixel proofs, not WGSL reading).
 //!
-//! Mode `None` must pass pure green through; `Protanopia` must
-//! transform pure green per the Machado matrix (r' = 1.052583
-//! clamps to 1.0 → the red channel saturates), pinning the
-//! verbatim port at the pixel level.
+//! Colorblind: mode `None` must pass pure green through;
+//! `Protanopia` must transform pure green per the Machado matrix
+//! (r' = 1.052583 clamps to 1.0 → the red channel saturates),
+//! pinning the verbatim port at the pixel level.
+//!
+//! Aurora: `Medium` must visibly draw the curtain above the
+//! horizon while the prompt area below it stays scene byte-exact;
+//! `Off` and out-of-contract tier words must return the scene —
+//! the module's byte-exact pass-through claims, proven on pixels.
 
 #![cfg(feature = "gpu_tests")]
 
-use engawa_wgpu::catalog::{colorblind, CatalogEffect, CATALOG_SAMPLER, OUT, SCENE};
+use engawa_wgpu::catalog::{
+    aurora::{self, AuroraQuality},
+    colorblind, CatalogEffect, CATALOG_SAMPLER, OUT, SCENE,
+};
 use engawa_wgpu::{
     BoundResource, BoundResources, FrameUniforms, TextureKey, TexturePool, WgpuDispatcher,
 };
@@ -19,7 +28,28 @@ use garasu::GpuContext;
 const W: u32 = 64;
 const H: u32 = 64;
 
-fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
+/// Dispatch one single-node catalog effect over a uniformly
+/// cleared scene texture and read the target pixels back — the
+/// shared pixel-proof harness (colorblind + aurora both run
+/// through it): pool lease → scene clear → graph compile →
+/// dispatch → readback.
+fn run_catalog_effect<P: bytemuck::Pod>(
+    effect: CatalogEffect,
+    scene_clear: wgpu::Color,
+    params: &P,
+) -> Vec<u8> {
+    assert!(
+        effect.aux_resources().is_empty(),
+        "pixel harness covers single-node effects only; {} declares aux resources",
+        effect.name()
+    );
+    assert_eq!(
+        size_of::<P>(),
+        effect.params_size(),
+        "params type must match {}'s declared params size",
+        effect.name()
+    );
+
     let format = wgpu::TextureFormat::Rgba8UnormSrgb;
     let gpu = pollster::block_on(GpuContext::new()).expect("gpu");
     let target = HeadlessTarget::new(&gpu, W, H, format);
@@ -27,7 +57,7 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
     let mut pool = TexturePool::new();
     let scene_lease = pool.lease(&gpu.device, TextureKey::offscreen(W, H, format));
 
-    // Paint the scene pure green.
+    // Paint the scene with the caller's flat color.
     let mut encoder = gpu
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -40,7 +70,7 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
                 view: scene_lease.view(),
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0 }),
+                    load: wgpu::LoadOp::Clear(scene_clear),
                     store: wgpu::StoreOp::Store,
                 },
             })],
@@ -52,8 +82,8 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
     gpu.queue.submit(std::iter::once(encoder.finish()));
 
     let params_buf = gpu.device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("colorblind params"),
-        size: CatalogEffect::Colorblind.params_size() as u64,
+        label: Some(effect.params_resource()),
+        size: effect.params_size() as u64,
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     });
@@ -62,10 +92,7 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
         ..wgpu::SamplerDescriptor::default()
     });
 
-    let graph = CatalogEffect::Colorblind
-        .graph()
-        .compile()
-        .expect("catalog graph compiles");
+    let graph = effect.graph().compile().expect("catalog graph compiles");
 
     let bindings = engawa::ResourceBindings::new()
         .with(SCENE, engawa::ResourceHandle::Texture(SCENE.into()))
@@ -74,8 +101,8 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
         .with(SCENE, scene_lease.bound_resource())
         .with(OUT, BoundResource::Texture { view: target.view().clone(), format })
         .with(CATALOG_SAMPLER, BoundResource::Sampler(sampler))
-        .with(colorblind::PARAMS_RESOURCE, BoundResource::Uniform(params_buf));
-    let frame = FrameUniforms::new().with(colorblind::PARAMS_RESOURCE, &params);
+        .with(effect.params_resource(), BoundResource::Uniform(params_buf));
+    let frame = FrameUniforms::new().with(effect.params_resource(), params);
 
     let mut dispatcher = WgpuDispatcher::new(&gpu.device, &gpu.queue, format);
     let cmd = dispatcher
@@ -88,6 +115,15 @@ fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
     assert_eq!(pool.free_count(), 1, "released lease must land in the free list");
 
     target.read_pixels_rgba8(&gpu)
+}
+
+fn run_colorblind(params: colorblind::ColorblindParams) -> Vec<u8> {
+    // Pure green scene — the Machado expectations derive from it.
+    run_catalog_effect(
+        CatalogEffect::Colorblind,
+        wgpu::Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0 },
+        &params,
+    )
 }
 
 fn center_pixel(pixels: &[u8]) -> [u8; 4] {
@@ -166,6 +202,157 @@ fn out_of_contract_mode_word_degrades_to_pass_through() {
     let params: colorblind::ColorblindParams = bytemuck::cast([7_u32, 0, 0, 0]);
     let pixels = run_colorblind(params);
     assert_pixel_close(center_pixel(&pixels), [0, 255, 0], "mode 7 (out of contract)");
+}
+
+// ── aurora pixel proofs ───────────────────────────────────────
+//
+// The WGSL-reading asserts in src/catalog/aurora.rs pin the
+// contract's TEXT; these pin its PIXELS — a regression that
+// zeroes alpha (broken horizon/border math sending every pixel
+// down the `return scene` paths) passes the dispatch matrix and
+// the perf smoke (the ALU still runs) but fails here.
+
+/// Dark-navy "terminal scene" the aurora proofs composite over —
+/// dark enough that the curtain's green/cyan reads as a large
+/// byte delta, and a genuine mid-tone so the byte-exact
+/// pass-through claims exercise a real sRGB round trip (not a
+/// trivial 0→0 / 255→255).
+const AURORA_SCENE: wgpu::Color = wgpu::Color { r: 0.02, g: 0.03, b: 0.08, a: 1.0 };
+
+/// Shipped defaults (Medium tier, horizon 0.62) at the test
+/// resolution — the exact shape mado wires up.
+fn aurora_test_params() -> aurora::AuroraParams {
+    #[allow(clippy::cast_precision_loss)]
+    aurora::AuroraParams::default().with_resolution([W as f32, H as f32])
+}
+
+fn run_aurora(params: aurora::AuroraParams) -> Vec<u8> {
+    run_catalog_effect(CatalogEffect::Aurora, AURORA_SCENE, &params)
+}
+
+/// First buffer row whose pixel-centre uv.y sits at or below the
+/// horizon — the shader's `alt <= 0` early-out region (the prompt
+/// area). Rows `first_below_horizon_row()..H` must be scene
+/// byte-exact under every tier.
+#[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn first_below_horizon_row(horizon: f32) -> u32 {
+    // uv.y = (y + 0.5) / H  >=  horizon  ⇔  y >= horizon*H - 0.5.
+    // At 64px / 0.62 this is row 40 (uv.y = 0.6328) — a ~0.013 uv
+    // margin over the boundary, far beyond interpolation error.
+    (horizon * H as f32 - 0.5).ceil() as u32
+}
+
+/// `Off` is the rebuild-free kill-switch: the pass must render
+/// the scene, proven against ground truth derived from the clear
+/// color through the same sRGB encode the attachment performs.
+/// (This also dispatches the `Off` tier on a real adapter — the
+/// perf smoke covers the three live tiers.)
+#[allow(clippy::cast_possible_truncation)]
+#[test]
+fn aurora_off_tier_renders_the_scene() {
+    let pixels = run_aurora(aurora_test_params().with_quality(AuroraQuality::Off));
+    let expected = [
+        srgb_encode_u8(AURORA_SCENE.r as f32),
+        srgb_encode_u8(AURORA_SCENE.g as f32),
+        srgb_encode_u8(AURORA_SCENE.b as f32),
+    ];
+    let mut off_pixels = 0usize;
+    let mut first: Option<(u32, u32, [u8; 4])> = None;
+    for y in 0..H {
+        for x in 0..W {
+            let i = ((y * W + x) * 4) as usize;
+            let got = [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
+            let close = got[..3]
+                .iter()
+                .zip(expected.iter())
+                .all(|(g, e)| (i32::from(*g) - i32::from(*e)).abs() <= 2)
+                && got[3] == 255;
+            if !close {
+                off_pixels += 1;
+                first.get_or_insert((x, y, got));
+            }
+        }
+    }
+    assert_eq!(
+        off_pixels, 0,
+        "Off tier must render the scene everywhere: {off_pixels} pixels off \
+         (first at {first:?}, expected ~{expected:?})"
+    );
+}
+
+/// A Pod-bytes-minted tier word the typed surface never produces
+/// must take the same `return scene` path as `Off` — byte-exact
+/// equality of the two full buffers (same shader path ⇒ identical
+/// bytes; any divergence means word >= 4 invented a tier).
+#[test]
+fn aurora_out_of_contract_tier_word_matches_off_byte_exact() {
+    let off = run_aurora(aurora_test_params().with_quality(AuroraQuality::Off));
+    let rogue = aurora::AuroraParams { tier: [7, 0, 0, 0], ..aurora_test_params() };
+    let pixels = run_aurora(rogue);
+    let diff_bytes = pixels.iter().zip(off.iter()).filter(|(a, b)| a != b).count();
+    assert_eq!(
+        diff_bytes, 0,
+        "tier word 7 must be byte-identical to Off pass-through; {diff_bytes} bytes differ"
+    );
+}
+
+/// The shipped default (Medium) must actually draw: above the
+/// horizon the curtain visibly changes pixels; below it (the
+/// prompt area) every pixel stays scene byte-exact — compared
+/// against the Off pass-through of the identical scene.
+#[allow(clippy::cast_possible_truncation)]
+#[test]
+fn aurora_medium_draws_above_the_horizon_and_never_below() {
+    let params = aurora_test_params();
+    assert_eq!(params.quality(), Some(AuroraQuality::Medium), "shipped default tier");
+    let off = run_aurora(aurora_test_params().with_quality(AuroraQuality::Off));
+    let med = run_aurora(params);
+
+    let below_start = (first_below_horizon_row(params.geometry[0]) * W * 4) as usize;
+
+    // (a) Prompt area: byte-exact scene (identical to the Off
+    // pass-through bytes — same `return scene` path).
+    let below_diff = med[below_start..]
+        .iter()
+        .zip(off[below_start..].iter())
+        .filter(|(a, b)| a != b)
+        .count();
+    assert_eq!(
+        below_diff, 0,
+        "below-horizon pixels must be scene byte-exact; {below_diff} bytes differ"
+    );
+
+    // (b) Sky: the curtain draws. Count differing pixels and the
+    // max channel delta over the above-horizon region; the delta
+    // floor (16) is far above dither magnitude (±0.5/255), so a
+    // pass requires actual curtain color, not dither residue.
+    let mut diff_pixels = 0usize;
+    let mut max_delta = 0i32;
+    for (m, o) in med[..below_start].chunks_exact(4).zip(off[..below_start].chunks_exact(4)) {
+        let delta = m
+            .iter()
+            .zip(o.iter())
+            .map(|(a, b)| (i32::from(*a) - i32::from(*b)).abs())
+            .max()
+            .unwrap_or(0);
+        if delta > 0 {
+            diff_pixels += 1;
+        }
+        max_delta = max_delta.max(delta);
+    }
+    assert!(
+        diff_pixels > 0,
+        "Medium must change at least one above-horizon pixel — the curtain never drew"
+    );
+    assert!(
+        max_delta >= 16,
+        "curtain contribution too weak to be the curtain (max channel delta {max_delta}, \
+         {diff_pixels} pixels differ) — alpha is collapsing toward zero"
+    );
+    eprintln!(
+        "aurora medium pixel proof: {diff_pixels} above-horizon pixels differ, \
+         max channel delta {max_delta}"
+    );
 }
 
 #[test]
@@ -293,9 +480,10 @@ fn retain_evicts_stale_size_buckets() {
 }
 
 /// Coarse mechanical perf smoke for the aurora quality tiers:
-/// dispatch a batch of frames at Low / Medium / High on the real
-/// adapter, print the aggregate timings (informational), and
-/// assert the monotone cost ordering low <= med <= high.
+/// dispatch a batch of frames at Off / Low / Medium / High on the
+/// real adapter, print the aggregate timings (informational), and
+/// assert the monotone cost ordering off <= low <= med <= high
+/// (`Off` costs ~a blit — the rebuild-free kill-switch claim).
 ///
 /// This is an ORDERING proof, not an absolute-ms gate — wall
 /// clocks on shared CI adapters are too noisy for absolute
@@ -306,10 +494,8 @@ fn retain_evicts_stale_size_buckets() {
 // math where the precision loss is irrelevant.
 #[allow(clippy::cast_precision_loss)]
 #[test]
-fn aurora_tier_cost_is_monotone_low_med_high() {
+fn aurora_tier_cost_is_monotone_off_low_med_high() {
     use std::time::Instant;
-
-    use engawa_wgpu::catalog::aurora::{self, AuroraQuality};
 
     // Big enough that per-pixel ALU dominates the per-frame
     // submit/poll overhead; small enough to stay CI-friendly.
@@ -374,20 +560,27 @@ fn aurora_tier_cost_is_monotone_low_med_high() {
         start.elapsed().as_secs_f64() * 1000.0
     };
 
+    let off_ms = time_tier(AuroraQuality::Off);
     let low_ms = time_tier(AuroraQuality::Low);
     let med_ms = time_tier(AuroraQuality::Medium);
     let high_ms = time_tier(AuroraQuality::High);
 
     eprintln!(
         "aurora perf smoke ({FRAMES} frames @ {PW}x{PH}): \
+         off={off_ms:.2}ms ({:.3}ms/frame)  \
          low={low_ms:.2}ms ({:.3}ms/frame)  \
          med={med_ms:.2}ms ({:.3}ms/frame)  \
          high={high_ms:.2}ms ({:.3}ms/frame)",
+        off_ms / FRAMES as f64,
         low_ms / FRAMES as f64,
         med_ms / FRAMES as f64,
         high_ms / FRAMES as f64,
     );
 
+    assert!(
+        off_ms <= low_ms * SLACK,
+        "tier cost inversion: Off ({off_ms:.2}ms) costs more than Low ({low_ms:.2}ms) × slack"
+    );
     assert!(
         low_ms <= med_ms * SLACK,
         "tier cost inversion: Low ({low_ms:.2}ms) costs more than Medium ({med_ms:.2}ms) × slack"
