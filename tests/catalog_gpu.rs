@@ -424,9 +424,9 @@ fn every_catalog_effect_dispatches_on_a_real_adapter() {
         failures.len(),
         failures
     );
-    // 6 single-material effects + bloom's 4 stages = 10 distinct
+    // 7 single-material effects + bloom's 4 stages = 11 distinct
     // pipelines, each compiled exactly once.
-    assert_eq!(dispatcher.cached_pipeline_count(), 10);
+    assert_eq!(dispatcher.cached_pipeline_count(), 11);
 }
 
 #[test]
