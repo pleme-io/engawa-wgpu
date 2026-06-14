@@ -37,6 +37,7 @@ pub mod bloom;
 pub mod colorblind;
 pub mod crt;
 pub mod glow_on_bell;
+pub mod grain;
 pub mod scanlines;
 pub mod snow;
 
@@ -101,6 +102,7 @@ pub enum CatalogEffect {
     GlowOnBell,
     Snow,
     Aurora,
+    Grain,
 }
 
 impl CatalogEffect {
@@ -116,6 +118,7 @@ impl CatalogEffect {
             Self::GlowOnBell => glow_on_bell::EFFECT_NAME,
             Self::Snow => snow::EFFECT_NAME,
             Self::Aurora => aurora::EFFECT_NAME,
+            Self::Grain => grain::EFFECT_NAME,
         }
     }
 
@@ -131,6 +134,7 @@ impl CatalogEffect {
             Self::GlowOnBell => glow_on_bell::PRIORITY,
             Self::Snow => snow::PRIORITY,
             Self::Aurora => aurora::PRIORITY,
+            Self::Grain => grain::PRIORITY,
         }
     }
 
@@ -145,6 +149,7 @@ impl CatalogEffect {
             Self::GlowOnBell => glow_on_bell::PARAMS_RESOURCE,
             Self::Snow => snow::PARAMS_RESOURCE,
             Self::Aurora => aurora::PARAMS_RESOURCE,
+            Self::Grain => grain::PARAMS_RESOURCE,
         }
     }
 
@@ -161,6 +166,7 @@ impl CatalogEffect {
             Self::GlowOnBell => size_of::<glow_on_bell::GlowOnBellParams>(),
             Self::Snow => size_of::<snow::SnowParams>(),
             Self::Aurora => size_of::<aurora::AuroraParams>(),
+            Self::Grain => size_of::<grain::GrainParams>(),
         }
     }
 
@@ -175,6 +181,7 @@ impl CatalogEffect {
             Self::GlowOnBell => "effects/glow_on_bell.tlisp",
             Self::Snow => "effects/snow.tlisp",
             Self::Aurora => "effects/aurora.tlisp",
+            Self::Grain => "effects/grain.tlisp",
         }
     }
 
@@ -198,6 +205,7 @@ impl CatalogEffect {
             }
             Self::Snow => bytemuck::bytes_of(&snow::SnowParams::default()).to_vec(),
             Self::Aurora => bytemuck::bytes_of(&aurora::AuroraParams::default()).to_vec(),
+            Self::Grain => bytemuck::bytes_of(&grain::GrainParams::default()).to_vec(),
         }
     }
 
@@ -215,6 +223,7 @@ impl CatalogEffect {
             Self::GlowOnBell => glow_on_bell::effect(),
             Self::Snow => snow::effect(),
             Self::Aurora => aurora::effect(),
+            Self::Grain => grain::effect(),
         }
     }
 
@@ -231,6 +240,7 @@ impl CatalogEffect {
             Self::GlowOnBell => glow_on_bell::lower(input, output),
             Self::Snow => snow::lower(input, output),
             Self::Aurora => aurora::lower(input, output),
+            Self::Grain => grain::lower(input, output),
         }
     }
 
@@ -260,7 +270,8 @@ impl CatalogEffect {
             | Self::Scanlines
             | Self::GlowOnBell
             | Self::Snow
-            | Self::Aurora => Vec::new(),
+            | Self::Aurora
+            | Self::Grain => Vec::new(),
         }
     }
 

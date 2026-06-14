@@ -1,0 +1,20 @@
+; engawa-wgpu effect catalog — grain (luma-only paper-grain
+; "tooth", applied last so it sits on top of everything).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<GrainParams>() matches. Layout (8 × f32 = 32 bytes):
+;   resolution = (width, height)
+;   opacity    (luma-jitter amplitude, 0 = pass-through)
+;   scale      (grain-cell scale multiplier)
+;   time       (seconds; quantized to ~5 updates/sec in-shader)
+;   _pad       (3 × f32 → 16-byte alignment)
+
+(defeffect grain
+  (priority 750)
+  (params-size 32)
+  (params-resource "grain:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "grain:params")))
