@@ -68,20 +68,30 @@ pub(crate) fn post_material(
     params_resource: &str,
 ) -> Material {
     Material {
+        // engawa added fixed-function render state under 0.1.x; all-default
+        // = opaque / no-cull / ccw / triangle-list, i.e. unchanged behaviour
+        // for these full-screen effects (per engawa's RenderState contract).
+        state: Default::default(),
         name: name.to_string(),
         shader: ShaderSource::inline(wgsl),
         bindings: vec![
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 0,
                 kind: BindingKind::Texture,
                 resource: input.clone(),
             },
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 1,
                 kind: BindingKind::Sampler,
                 resource: CATALOG_SAMPLER.into(),
             },
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 2,
                 kind: BindingKind::Uniform,
                 resource: params_resource.into(),
@@ -254,15 +264,15 @@ impl CatalogEffect {
             Self::Bloom => vec![
                 (
                     bloom::BRIGHT_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None },
+                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
                 ),
                 (
                     bloom::BLUR_H_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None },
+                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
                 ),
                 (
                     bloom::BLUR_V_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None },
+                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
                 ),
             ],
             Self::Colorblind
@@ -286,8 +296,8 @@ impl CatalogEffect {
         let params_size =
             u32::try_from(self.params_size()).expect("catalog params structs are tiny");
         let mut g = RenderGraph::default()
-            .with_resource(SCENE, ResourceKind::Texture { width: None, height: None })
-            .with_resource(OUT, ResourceKind::Texture { width: None, height: None })
+            .with_resource(SCENE, ResourceKind::Texture { width: None, height: None, format: None, sample_count: None })
+            .with_resource(OUT, ResourceKind::Texture { width: None, height: None, format: None, sample_count: None })
             .with_resource(CATALOG_SAMPLER, ResourceKind::Sampler)
             .with_resource(
                 self.params_resource(),

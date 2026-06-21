@@ -75,25 +75,34 @@ impl Default for BloomParams {
 #[must_use]
 pub fn composite_material(scene: &ResourceId, blurred: &ResourceId) -> Material {
     Material {
+        state: Default::default(),
         name: COMPOSITE_MATERIAL.to_string(),
         shader: ShaderSource::inline(COMPOSITE_WGSL),
         bindings: vec![
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 0,
                 kind: BindingKind::Texture,
                 resource: scene.clone(),
             },
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 1,
                 kind: BindingKind::Texture,
                 resource: blurred.clone(),
             },
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 2,
                 kind: BindingKind::Sampler,
                 resource: CATALOG_SAMPLER.into(),
             },
             UniformBinding {
+                group: 0,
+                stages: Default::default(),
                 binding: 3,
                 kind: BindingKind::Uniform,
                 resource: PARAMS_RESOURCE.into(),
@@ -149,6 +158,12 @@ pub fn lower(input: &ResourceId, output: &ResourceId) -> Vec<Node> {
             inputs: vec![input.clone(), blur_v.clone()],
             outputs: vec![output.clone()],
             material: Some(composite_material(input, &blur_v)),
+            // Defaulted node fields added under engawa 0.1.x: full-screen
+            // quad draw, no depth test, no compute dispatch — the documented
+            // defaults for a 2D post-process render node.
+            draw: Default::default(),
+            depth: None,
+            dispatch: None,
         },
     ]
 }
