@@ -86,6 +86,10 @@ pub enum WgpuDispatcherError {
         source: std::io::Error,
     },
     #[error(
+        "material {material} uses raw Metal Shading Language (ShaderSource::Msl), which the wgpu backend cannot accept — it compiles WGSL only; dispatch MSL materials on a Metal backend"
+    )]
+    UnsupportedShaderSource { material: String },
+    #[error(
         "frame uniform for {resource:?} has no BoundResources entry — bind the uniform buffer before dispatch"
     )]
     FrameUniformUnbound { resource: ResourceId },
@@ -408,6 +412,16 @@ impl WgpuDispatcher {
                     path: path.clone(),
                     source,
                 })?,
+            // engawa's typed Metal-only escape hatch (ShaderSource::Msl).
+            // The wgpu backend compiles WGSL (via naga) only, so per
+            // engawa's documented contract we reject raw MSL at dispatch
+            // with a typed error rather than silently mis-rendering — the
+            // same silent-wrong-answer anti-pattern guarded against above.
+            engawa::ShaderSource::Msl { .. } => {
+                return Err(WgpuDispatcherError::UnsupportedShaderSource {
+                    material: material.name.clone(),
+                });
+            }
         };
         let combined = combined_shader_source(&fragment_wgsl);
         let shader = self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
