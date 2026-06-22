@@ -294,9 +294,9 @@ rec {
       };
       "arrayvec" = rec {
         crateName = "arrayvec";
-        version = "0.7.6";
+        version = "0.7.7";
         edition = "2018";
-        sha256 = "0l1fz4ccgv6pm609rif37sl5nv5k6lbzi7kkppgzqzh1vwix20kw";
+        sha256 = "1zjxk501fc4lnkzkdicqsk7y3l3agw89ziqjzcjca6ry9n484a7h";
         authors = [
           "bluss"
         ];
@@ -627,9 +627,9 @@ rec {
       };
       "bytes" = rec {
         crateName = "bytes";
-        version = "1.11.1";
+        version = "1.12.0";
         edition = "2021";
-        sha256 = "0czwlhbq8z29wq0ia87yass2mzy1y0jcasjb8ghriiybnwrqfx0y";
+        sha256 = "14xmxm8imyvw675bsgyadmzm9k63js1sdqh7099p0hlj2p9zbqwa";
         authors = [
           "Carl Lerche <me@carllerche.com>"
           "Sean McArthur <sean@seanmonstar.com>"
@@ -730,9 +730,9 @@ rec {
       };
       "cc" = rec {
         crateName = "cc";
-        version = "1.2.64";
+        version = "1.2.65";
         edition = "2018";
-        sha256 = "07shcd8faxw7csz13m3cg2mj6i8z07pqs960k181pscbjpyqgn6s";
+        sha256 = "15iv1nizwngnq9if3id4cjjs4pl0rnjkd6xm82vcq5vwpv4ywa72";
         authors = [
           "Alex Crichton <alex@alexcrichton.com>"
         ];
@@ -1331,8 +1331,8 @@ rec {
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/engawa";
-          rev = "bcccccecadc058907454c065056c1c54c0b2777d";
-          sha256 = "0v4ga5gch9nf6cvrgmd7gjfa75xh99capfby9z6b8zgszrbcxmsd";
+          rev = "bda639d5d9bd3ec2dd59ff84b2925ae278f24c52";
+          sha256 = "146qqhqvri8lhm92v723nv245bqbslwsv06hfis3z4v671vv3mv7";
         };
         authors = [
           "pleme-io"
@@ -1352,11 +1352,13 @@ rec {
             packageId = "thiserror 2.0.18";
           }
         ];
-
+        features = {
+          "lisp" = [ "dep:tatara-lisp" "dep:tatara-lisp-derive" "dep:serde_json" ];
+        };
       };
       "engawa-wgpu" = rec {
         crateName = "engawa-wgpu";
-        version = "0.1.7";
+        version = "0.1.8";
         edition = "2024";
         src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
         libName = "engawa_wgpu";
@@ -1756,13 +1758,13 @@ rec {
       };
       "garasu" = rec {
         crateName = "garasu";
-        version = "0.1.0";
+        version = "0.1.1";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/garasu";
-          rev = "bfda319bf2009bfab8c482e328d0274aae9727f5";
-          sha256 = "05z3xbwrs343w2fjky2zq1aj74idsvbppgh10ivhkc0cpzajx26z";
+          rev = "a7709af29cebfd6ac17e50e432a1403f6901fc15";
+          sha256 = "082m6m2yww6zjzxgha4gn22liac9kprgirvdbspxzhri9vi34jj9";
         };
         dependencies = [
           {
@@ -2813,9 +2815,9 @@ rec {
       };
       "log" = rec {
         crateName = "log";
-        version = "0.4.32";
+        version = "0.4.33";
         edition = "2021";
-        sha256 = "0fmdg0cxig7i4fwf1sw7fmg4d1gdbfzniawcfpwydy1q7320fgwm";
+        sha256 = "1bd9dmk22pxgnf0h0slba6rz99zb0a0b2mdhpk8p92bp26ycbvhc";
         authors = [
           "The Rust Project Developers"
         ];
@@ -5464,9 +5466,9 @@ rec {
       };
       "quote" = rec {
         crateName = "quote";
-        version = "1.0.45";
+        version = "1.0.46";
         edition = "2021";
-        sha256 = "095rb5rg7pbnwdp6v8w5jw93wndwyijgci1b5lw8j1h5cscn3wj1";
+        sha256 = "0s034glrlav8nzqy2yskqzv52ncy82k126sm2jk5j1vs1iylbg6z";
         authors = [
           "David Tolnay <dtolnay@gmail.com>"
         ];
@@ -6648,9 +6650,9 @@ rec {
       };
       "syn" = rec {
         crateName = "syn";
-        version = "2.0.117";
+        version = "2.0.118";
         edition = "2021";
-        sha256 = "16cv7c0wbn8amxc54n4w15kxlx5ypdmla8s0gxr2l7bv7s0bhrg6";
+        sha256 = "08hlbc32lqd5d67p26ck7chg0rkclsw9as6f96vfn4s2j1zyb6hv";
         authors = [
           "David Tolnay <dtolnay@gmail.com>"
         ];
@@ -7637,9 +7639,9 @@ rec {
       };
       "wayland-protocols" = rec {
         crateName = "wayland-protocols";
-        version = "0.32.12";
-        edition = "2021";
-        sha256 = "13rdk2akpdg90v42sjlz7c86541isxgq347772cl5qmd7i98afjn";
+        version = "0.32.13";
+        edition = "2024";
+        sha256 = "1dn4injzx1lnmacnhl3q60m743lvshxmmy0aabb2xaixvq9wil13";
         libName = "wayland_protocols";
         authors = [
           "Elinor Berger <elinor@safaradeg.net>"
