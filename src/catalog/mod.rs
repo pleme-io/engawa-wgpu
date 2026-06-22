@@ -16,13 +16,15 @@
 //!
 //! ## Mechanical registry
 //!
-//! [`CatalogEffect::ALL`] is **derived from the enum variants**
-//! (`pleme-allvariants-derive`) — never hand-listed. The matrix
-//! forcing test (`tests/catalog_matrix.rs`) keeps one row per
-//! effect and asserts `MATRIX.len() == ALL.len()`, so a new
-//! variant cannot land without a matrix row: the derive grows
-//! `ALL`, the len-equality fails, and every exhaustive `match`
-//! below refuses to compile until the new effect is wired.
+//! The [`CatalogEffect`] enum AND every per-variant dispatch method
+//! are emitted by the [`catalog_effects!`] table macro — ONE row per
+//! effect (its module, params type, and aux resources), never the 9×
+//! parallel hand-authored `match` blocks this used to be (the ★★
+//! EMITTER SUBSTRATE rule: generation over composition). `ALL` is in
+//! turn derived from the enum variants (`pleme-allvariants-derive`),
+//! so the matrix forcing test (`tests/catalog_matrix.rs`) asserting
+//! `MATRIX.len() == ALL.len()` still refuses a new effect that lacks
+//! a matrix row.
 //!
 //! ## Resource conventions
 //!
@@ -101,207 +103,138 @@ pub(crate) fn post_material(
     }
 }
 
-/// The catalog registry. `ALL` is emitted by the derive — adding
-/// a variant mechanically grows the registry and breaks every
-/// exhaustive match below until the effect is fully wired.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, AllVariants)]
-pub enum CatalogEffect {
-    Colorblind,
-    Crt,
-    Scanlines,
-    Bloom,
-    GlowOnBell,
-    Snow,
-    Aurora,
-    Grain,
-    WindowDepth,
+/// Emit the [`CatalogEffect`] registry + every per-variant dispatch
+/// method from a single table — ONE row per effect declares its
+/// `Variant => module::ParamsType` (plus an optional `aux: [...]` list
+/// of intermediate texture resources the lowering introduces). Adding
+/// an effect is one row; the 9-arm parallel matches this used to be
+/// are generated. `graph()` stays hand-written (it's generic over the
+/// rows, composing the generated methods).
+///
+/// This is the ★★ EMITTER SUBSTRATE rule applied to the catalog
+/// dispatch: a recurring impl shape becomes generated, not repeated.
+macro_rules! catalog_effects {
+    (
+        $(
+            $variant:ident => $module:ident :: $params:ident
+                $(, aux: [ $($aux:expr),* $(,)? ])?
+        );+ $(;)?
+    ) => {
+        /// The catalog registry. `ALL` is emitted by the derive — adding
+        /// a row to [`catalog_effects!`] grows the registry and breaks the
+        /// matrix forcing test until the effect ships a matrix row.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, AllVariants)]
+        pub enum CatalogEffect {
+            $( $variant ),+
+        }
+
+        impl CatalogEffect {
+            /// Operator-facing effect name (matches the `(defeffect …)`
+            /// form name and the YAML toggle key).
+            #[must_use]
+            pub const fn name(self) -> &'static str {
+                match self { $( Self::$variant => $module::EFFECT_NAME ),+ }
+            }
+
+            /// Render-order priority — all catalog effects live in
+            /// engawa's post range (200..=799).
+            #[must_use]
+            pub const fn priority(self) -> u16 {
+                match self { $( Self::$variant => $module::PRIORITY ),+ }
+            }
+
+            /// Resource id of the effect's params uniform buffer.
+            #[must_use]
+            pub const fn params_resource(self) -> &'static str {
+                match self { $( Self::$variant => $module::PARAMS_RESOURCE ),+ }
+            }
+
+            /// `size_of` the effect's Params struct — must equal the
+            /// `(params-size N)` declared in the effect's `.tlisp` form
+            /// (enforced by the matrix test).
+            #[must_use]
+            pub const fn params_size(self) -> usize {
+                match self { $( Self::$variant => ::core::mem::size_of::<$module::$params>() ),+ }
+            }
+
+            /// Repo-relative path of the effect's `(defeffect …)` form —
+            /// `effects/<module>.tlisp` (module name == effect name).
+            #[must_use]
+            pub const fn tlisp_path(self) -> &'static str {
+                match self { $( Self::$variant => concat!("effects/", stringify!($module), ".tlisp") ),+ }
+            }
+
+            /// Default params, bytemuck-encoded — ready to seed a uniform
+            /// buffer or a [`crate::FrameUniforms`] entry. Going through
+            /// `bytemuck::bytes_of` is also the matrix test's Pod proof: a
+            /// non-Pod Params would not compile here.
+            #[must_use]
+            pub fn default_params_bytes(self) -> Vec<u8> {
+                match self {
+                    $( Self::$variant => bytemuck::bytes_of(&$module::$params::default()).to_vec() ),+
+                }
+            }
+
+            /// The operator-facing toggle unit (engawa `Effect`). For
+            /// multi-node effects (bloom) this carries the material that
+            /// lands on the output; [`CatalogEffect::lower`] is the
+            /// canonical node surface either way.
+            #[must_use]
+            pub fn effect(self) -> Effect {
+                match self { $( Self::$variant => $module::effect() ),+ }
+            }
+
+            /// Canonical Effect → Node lowering: read `input`, write
+            /// `output`, plus the effect's internal ping-pong nodes
+            /// (bloom emits 4 nodes; everything else 1).
+            #[must_use]
+            pub fn lower(self, input: &ResourceId, output: &ResourceId) -> Vec<Node> {
+                match self { $( Self::$variant => $module::lower(input, output) ),+ }
+            }
+
+            /// Intermediate (node-produced) resources the lowering
+            /// introduces beyond `input`/`output` — the consumer leases
+            /// these from a [`crate::TexturePool`] and the graph declares
+            /// them. Empty for single-node effects.
+            #[must_use]
+            pub fn aux_resources(self) -> Vec<(&'static str, ResourceKind)> {
+                match self {
+                    $(
+                        Self::$variant => {
+                            #[allow(unused_mut)]
+                            let mut v: Vec<(&'static str, ResourceKind)> = Vec::new();
+                            $( $( v.push((
+                                $aux,
+                                ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
+                            )); )* )?
+                            v
+                        }
+                    ),+
+                }
+            }
+        }
+    };
+}
+
+catalog_effects! {
+    Colorblind  => colorblind::ColorblindParams;
+    Crt         => crt::CrtParams;
+    Scanlines   => scanlines::ScanlinesParams;
+    Bloom       => bloom::BloomParams, aux: [bloom::BRIGHT_RESOURCE, bloom::BLUR_H_RESOURCE, bloom::BLUR_V_RESOURCE];
+    GlowOnBell  => glow_on_bell::GlowOnBellParams;
+    Snow        => snow::SnowParams;
+    Aurora      => aurora::AuroraParams;
+    Grain       => grain::GrainParams;
+    WindowDepth => window_depth::WindowDepthParams;
 }
 
 impl CatalogEffect {
-    /// Operator-facing effect name (matches the `(defeffect …)`
-    /// form name and the YAML toggle key).
-    #[must_use]
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Colorblind => colorblind::EFFECT_NAME,
-            Self::Crt => crt::EFFECT_NAME,
-            Self::Scanlines => scanlines::EFFECT_NAME,
-            Self::Bloom => bloom::EFFECT_NAME,
-            Self::GlowOnBell => glow_on_bell::EFFECT_NAME,
-            Self::Snow => snow::EFFECT_NAME,
-            Self::Aurora => aurora::EFFECT_NAME,
-            Self::Grain => grain::EFFECT_NAME,
-            Self::WindowDepth => window_depth::EFFECT_NAME,
-        }
-    }
-
-    /// Render-order priority — all catalog effects live in
-    /// engawa's post range (200..=799).
-    #[must_use]
-    pub const fn priority(self) -> u16 {
-        match self {
-            Self::Colorblind => colorblind::PRIORITY,
-            Self::Crt => crt::PRIORITY,
-            Self::Scanlines => scanlines::PRIORITY,
-            Self::Bloom => bloom::PRIORITY,
-            Self::GlowOnBell => glow_on_bell::PRIORITY,
-            Self::Snow => snow::PRIORITY,
-            Self::Aurora => aurora::PRIORITY,
-            Self::Grain => grain::PRIORITY,
-            Self::WindowDepth => window_depth::PRIORITY,
-        }
-    }
-
-    /// Resource id of the effect's params uniform buffer.
-    #[must_use]
-    pub const fn params_resource(self) -> &'static str {
-        match self {
-            Self::Colorblind => colorblind::PARAMS_RESOURCE,
-            Self::Crt => crt::PARAMS_RESOURCE,
-            Self::Scanlines => scanlines::PARAMS_RESOURCE,
-            Self::Bloom => bloom::PARAMS_RESOURCE,
-            Self::GlowOnBell => glow_on_bell::PARAMS_RESOURCE,
-            Self::Snow => snow::PARAMS_RESOURCE,
-            Self::Aurora => aurora::PARAMS_RESOURCE,
-            Self::Grain => grain::PARAMS_RESOURCE,
-            Self::WindowDepth => window_depth::PARAMS_RESOURCE,
-        }
-    }
-
-    /// `size_of` the effect's Params struct — must equal the
-    /// `(params-size N)` declared in the effect's `.tlisp` form
-    /// (enforced by the matrix test).
-    #[must_use]
-    pub const fn params_size(self) -> usize {
-        match self {
-            Self::Colorblind => size_of::<colorblind::ColorblindParams>(),
-            Self::Crt => size_of::<crt::CrtParams>(),
-            Self::Scanlines => size_of::<scanlines::ScanlinesParams>(),
-            Self::Bloom => size_of::<bloom::BloomParams>(),
-            Self::GlowOnBell => size_of::<glow_on_bell::GlowOnBellParams>(),
-            Self::Snow => size_of::<snow::SnowParams>(),
-            Self::Aurora => size_of::<aurora::AuroraParams>(),
-            Self::Grain => size_of::<grain::GrainParams>(),
-            Self::WindowDepth => size_of::<window_depth::WindowDepthParams>(),
-        }
-    }
-
-    /// Repo-relative path of the effect's `(defeffect …)` form.
-    #[must_use]
-    pub const fn tlisp_path(self) -> &'static str {
-        match self {
-            Self::Colorblind => "effects/colorblind.tlisp",
-            Self::Crt => "effects/crt.tlisp",
-            Self::Scanlines => "effects/scanlines.tlisp",
-            Self::Bloom => "effects/bloom.tlisp",
-            Self::GlowOnBell => "effects/glow_on_bell.tlisp",
-            Self::Snow => "effects/snow.tlisp",
-            Self::Aurora => "effects/aurora.tlisp",
-            Self::Grain => "effects/grain.tlisp",
-            Self::WindowDepth => "effects/window_depth.tlisp",
-        }
-    }
-
-    /// Default params, bytemuck-encoded — ready to seed a
-    /// uniform buffer or a [`crate::FrameUniforms`] entry. Going
-    /// through `bytemuck::bytes_of` is also the matrix test's
-    /// Pod proof: a non-Pod Params would not compile here.
-    #[must_use]
-    pub fn default_params_bytes(self) -> Vec<u8> {
-        match self {
-            Self::Colorblind => {
-                bytemuck::bytes_of(&colorblind::ColorblindParams::default()).to_vec()
-            }
-            Self::Crt => bytemuck::bytes_of(&crt::CrtParams::default()).to_vec(),
-            Self::Scanlines => {
-                bytemuck::bytes_of(&scanlines::ScanlinesParams::default()).to_vec()
-            }
-            Self::Bloom => bytemuck::bytes_of(&bloom::BloomParams::default()).to_vec(),
-            Self::GlowOnBell => {
-                bytemuck::bytes_of(&glow_on_bell::GlowOnBellParams::default()).to_vec()
-            }
-            Self::Snow => bytemuck::bytes_of(&snow::SnowParams::default()).to_vec(),
-            Self::Aurora => bytemuck::bytes_of(&aurora::AuroraParams::default()).to_vec(),
-            Self::Grain => bytemuck::bytes_of(&grain::GrainParams::default()).to_vec(),
-            Self::WindowDepth => {
-                bytemuck::bytes_of(&window_depth::WindowDepthParams::default()).to_vec()
-            }
-        }
-    }
-
-    /// The operator-facing toggle unit (engawa `Effect`). For
-    /// multi-node effects (bloom) this carries the material
-    /// that lands on the output; [`CatalogEffect::lower`] is the
-    /// canonical node surface either way.
-    #[must_use]
-    pub fn effect(self) -> Effect {
-        match self {
-            Self::Colorblind => colorblind::effect(),
-            Self::Crt => crt::effect(),
-            Self::Scanlines => scanlines::effect(),
-            Self::Bloom => bloom::effect(),
-            Self::GlowOnBell => glow_on_bell::effect(),
-            Self::Snow => snow::effect(),
-            Self::Aurora => aurora::effect(),
-            Self::Grain => grain::effect(),
-            Self::WindowDepth => window_depth::effect(),
-        }
-    }
-
-    /// Canonical Effect → Node lowering: read `input`, write
-    /// `output`, plus the effect's internal ping-pong nodes
-    /// (bloom emits 4 nodes; everything else 1).
-    #[must_use]
-    pub fn lower(self, input: &ResourceId, output: &ResourceId) -> Vec<Node> {
-        match self {
-            Self::Colorblind => colorblind::lower(input, output),
-            Self::Crt => crt::lower(input, output),
-            Self::Scanlines => scanlines::lower(input, output),
-            Self::Bloom => bloom::lower(input, output),
-            Self::GlowOnBell => glow_on_bell::lower(input, output),
-            Self::Snow => snow::lower(input, output),
-            Self::Aurora => aurora::lower(input, output),
-            Self::Grain => grain::lower(input, output),
-            Self::WindowDepth => window_depth::lower(input, output),
-        }
-    }
-
-    /// Intermediate (node-produced) resources the lowering
-    /// introduces beyond `input`/`output` — the consumer leases
-    /// these from a [`crate::TexturePool`] and the graph
-    /// declares them.
-    #[must_use]
-    pub fn aux_resources(self) -> Vec<(&'static str, ResourceKind)> {
-        match self {
-            Self::Bloom => vec![
-                (
-                    bloom::BRIGHT_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
-                ),
-                (
-                    bloom::BLUR_H_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
-                ),
-                (
-                    bloom::BLUR_V_RESOURCE,
-                    ResourceKind::Texture { width: None, height: None, format: None, sample_count: None },
-                ),
-            ],
-            Self::Colorblind
-            | Self::Crt
-            | Self::Scanlines
-            | Self::GlowOnBell
-            | Self::Snow
-            | Self::Aurora
-            | Self::Grain
-            | Self::WindowDepth => Vec::new(),
-        }
-    }
-
     /// The canonical single-effect graph: [`SCENE`] (input) →
     /// effect nodes → [`OUT`], with the sampler + params uniform
     /// declared as graph inputs. `graph().compile()` succeeding
-    /// is the matrix test's wiring proof.
+    /// is the matrix test's wiring proof. Generic over the table
+    /// rows (composes the generated methods), so it stays
+    /// hand-written rather than macro-emitted.
     #[must_use]
     pub fn graph(self) -> RenderGraph {
         let scene: ResourceId = SCENE.into();
