@@ -40,6 +40,7 @@ pub mod glow_on_bell;
 pub mod grain;
 pub mod scanlines;
 pub mod snow;
+pub mod window_depth;
 
 use engawa::{
     BindingKind, Effect, Material, Node, RenderGraph, ResourceId, ResourceKind,
@@ -113,6 +114,7 @@ pub enum CatalogEffect {
     Snow,
     Aurora,
     Grain,
+    WindowDepth,
 }
 
 impl CatalogEffect {
@@ -129,6 +131,7 @@ impl CatalogEffect {
             Self::Snow => snow::EFFECT_NAME,
             Self::Aurora => aurora::EFFECT_NAME,
             Self::Grain => grain::EFFECT_NAME,
+            Self::WindowDepth => window_depth::EFFECT_NAME,
         }
     }
 
@@ -145,6 +148,7 @@ impl CatalogEffect {
             Self::Snow => snow::PRIORITY,
             Self::Aurora => aurora::PRIORITY,
             Self::Grain => grain::PRIORITY,
+            Self::WindowDepth => window_depth::PRIORITY,
         }
     }
 
@@ -160,6 +164,7 @@ impl CatalogEffect {
             Self::Snow => snow::PARAMS_RESOURCE,
             Self::Aurora => aurora::PARAMS_RESOURCE,
             Self::Grain => grain::PARAMS_RESOURCE,
+            Self::WindowDepth => window_depth::PARAMS_RESOURCE,
         }
     }
 
@@ -177,6 +182,7 @@ impl CatalogEffect {
             Self::Snow => size_of::<snow::SnowParams>(),
             Self::Aurora => size_of::<aurora::AuroraParams>(),
             Self::Grain => size_of::<grain::GrainParams>(),
+            Self::WindowDepth => size_of::<window_depth::WindowDepthParams>(),
         }
     }
 
@@ -192,6 +198,7 @@ impl CatalogEffect {
             Self::Snow => "effects/snow.tlisp",
             Self::Aurora => "effects/aurora.tlisp",
             Self::Grain => "effects/grain.tlisp",
+            Self::WindowDepth => "effects/window_depth.tlisp",
         }
     }
 
@@ -216,6 +223,9 @@ impl CatalogEffect {
             Self::Snow => bytemuck::bytes_of(&snow::SnowParams::default()).to_vec(),
             Self::Aurora => bytemuck::bytes_of(&aurora::AuroraParams::default()).to_vec(),
             Self::Grain => bytemuck::bytes_of(&grain::GrainParams::default()).to_vec(),
+            Self::WindowDepth => {
+                bytemuck::bytes_of(&window_depth::WindowDepthParams::default()).to_vec()
+            }
         }
     }
 
@@ -234,6 +244,7 @@ impl CatalogEffect {
             Self::Snow => snow::effect(),
             Self::Aurora => aurora::effect(),
             Self::Grain => grain::effect(),
+            Self::WindowDepth => window_depth::effect(),
         }
     }
 
@@ -251,6 +262,7 @@ impl CatalogEffect {
             Self::Snow => snow::lower(input, output),
             Self::Aurora => aurora::lower(input, output),
             Self::Grain => grain::lower(input, output),
+            Self::WindowDepth => window_depth::lower(input, output),
         }
     }
 
@@ -281,7 +293,8 @@ impl CatalogEffect {
             | Self::GlowOnBell
             | Self::Snow
             | Self::Aurora
-            | Self::Grain => Vec::new(),
+            | Self::Grain
+            | Self::WindowDepth => Vec::new(),
         }
     }
 

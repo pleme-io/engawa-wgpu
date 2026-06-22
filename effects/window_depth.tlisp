@@ -1,0 +1,15 @@
+; engawa-wgpu effect catalog — window_depth (inner-edge vignette:
+; a recessed "depth around the sides and edges" frame).
+;
+; params-size is the bind contract for the params uniform —
+; tests/catalog_matrix.rs reads this file and asserts
+; size_of::<WindowDepthParams>() matches.
+
+(defeffect window_depth
+  (priority 760)
+  (params-size 32)
+  (params-resource "window_depth:params")
+  (bindings
+    (binding 0 texture "scene")
+    (binding 1 sampler "catalog:sampler")
+    (binding 2 uniform "window_depth:params")))
