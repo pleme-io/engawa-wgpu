@@ -1331,8 +1331,8 @@ rec {
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/engawa";
-          rev = "772fbf0357d3bc3e90786ffb5e8a5a8b5ddb8f44";
-          sha256 = "0sgkkgvz6qzbap96lbhqjlb0ny9xi1z2pdvf8714cnaxs3nmxzv7";
+          rev = "bcccccecadc058907454c065056c1c54c0b2777d";
+          sha256 = "0v4ga5gch9nf6cvrgmd7gjfa75xh99capfby9z6b8zgszrbcxmsd";
         };
         authors = [
           "pleme-io"
@@ -1356,7 +1356,7 @@ rec {
       };
       "engawa-wgpu" = rec {
         crateName = "engawa-wgpu";
-        version = "0.1.6";
+        version = "0.1.7";
         edition = "2024";
         src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
         libName = "engawa_wgpu";
