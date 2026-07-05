@@ -18,7 +18,16 @@ pub const PRIORITY: u16 = 400;
 pub const PARAMS_RESOURCE: &str = "glow_on_bell:params";
 pub const WGSL: &str = include_str!("wgsl/glow_on_bell.wgsl");
 
-/// Uniform payload — 32 bytes.
+/// The historical BEL glow colour — a cool near-white. Kept as the
+/// default `tint` so an unconfigured consumer renders exactly as before
+/// this field existed (the bell glow is byte-identical). `a` is unused
+/// by the shader (it samples `.rgb`); it stays 1.0 for tidy uniforms.
+pub const BELL_TINT: [f32; 4] = [0.85, 0.92, 1.0, 1.0];
+
+/// Uniform payload — 48 bytes. The glow is *tintable*: the additive
+/// colour is a uniform (`tint`), not a shader constant, so one glow
+/// effect serves every peripheral cue — a cool-white BEL ring, a green
+/// success pulse, a red failure pulse — from the same catalog fragment.
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Pod, Zeroable)]
 pub struct GlowOnBellParams {
@@ -31,6 +40,9 @@ pub struct GlowOnBellParams {
     /// Gaussian sigma in physical pixels.
     pub radius_px: f32,
     _pad: [f32; 2],
+    /// Additive glow colour (rgb; `a` unused). Defaults to [`BELL_TINT`].
+    /// vec4 for std140/WGSL 16-byte alignment at offset 32.
+    pub tint: [f32; 4],
 }
 
 impl GlowOnBellParams {
@@ -43,8 +55,16 @@ impl GlowOnBellParams {
         }
     }
 
-    /// BEL arrived — saturate the clock.
+    /// BEL arrived — saturate the clock (leaving the current tint).
     pub fn ring(&mut self) {
+        self.bell_intensity = 1.0;
+    }
+
+    /// Saturate the clock *and* set the glow colour in one call — the
+    /// semantic-pulse entry point (e.g. a red failure flash). `rgb` is
+    /// the additive colour; alpha is fixed at 1.0.
+    pub fn ring_tinted(&mut self, rgb: [f32; 3]) {
+        self.tint = [rgb[0], rgb[1], rgb[2], 1.0];
         self.bell_intensity = 1.0;
     }
 
@@ -63,6 +83,7 @@ impl Default for GlowOnBellParams {
             bell_intensity: 0.0,
             radius_px: 240.0,
             _pad: [0.0; 2],
+            tint: BELL_TINT,
         }
     }
 }
@@ -115,5 +136,31 @@ mod tests {
             p.decay(0.92);
         }
         assert!(p.bell_intensity < 1e-6, "decayed clock must reach silence");
+    }
+
+    // The default tint is the historical BEL colour, so an unconfigured
+    // consumer renders byte-identically to the pre-tint shader constant.
+    #[allow(clippy::float_cmp)]
+    #[test]
+    fn default_tint_is_the_bell_colour() {
+        assert_eq!(GlowOnBellParams::default().tint, BELL_TINT);
+    }
+
+    // ring_tinted saturates the clock AND overrides the colour — the
+    // semantic-pulse path (a red failure flash / green success flash).
+    #[allow(clippy::float_cmp)]
+    #[test]
+    fn ring_tinted_sets_colour_and_saturates() {
+        let mut p = GlowOnBellParams::default();
+        p.ring_tinted([1.0, 0.2, 0.2]);
+        assert_eq!(p.bell_intensity, 1.0, "ring_tinted must saturate the clock");
+        assert_eq!(p.tint, [1.0, 0.2, 0.2, 1.0], "rgb set, alpha fixed at 1.0");
+    }
+
+    // The uniform must stay 16-byte-aligned (WGSL std140): 48 bytes so
+    // `tint: vec4` lands at offset 32.
+    #[test]
+    fn uniform_is_forty_eight_bytes() {
+        assert_eq!(core::mem::size_of::<GlowOnBellParams>(), 48);
     }
 }

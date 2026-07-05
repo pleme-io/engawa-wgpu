@@ -2,13 +2,17 @@
 ; driven by a bell_intensity uniform; the consumer supplies the
 ; clock — set 1.0 on BEL, decay per frame on the host).
 ;
+; The glow is tintable: a `tint: vec4` uniform (offset 32) carries the
+; additive colour, so one effect serves a cool-white BEL ring, a green
+; success pulse, and a red failure pulse (BELL_TINT is the default).
+;
 ; params-size is the bind contract for the params uniform —
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<GlowOnBellParams>() matches.
 
 (defeffect glow_on_bell
   (priority 400)
-  (params-size 32)
+  (params-size 48)
   (params-resource "glow_on_bell:params")
   (bindings
     (binding 0 texture "scene")
