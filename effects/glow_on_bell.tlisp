@@ -10,7 +10,8 @@
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<GlowOnBellParams>() matches.
 
-(defeffect glow_on_bell
+(defeffect
+  glow_on_bell
   (priority 400)
   (params-size 48)
   (params-resource "glow_on_bell:params")

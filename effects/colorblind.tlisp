@@ -5,7 +5,8 @@
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<ColorblindParams>() matches.
 
-(defeffect colorblind
+(defeffect
+  colorblind
   (priority 700)
   (params-size 16)
   (params-resource "colorblind:params")

@@ -21,7 +21,8 @@
 ; the runtime perf-governor toggle (pass-through shader, still
 ; one blit-cost pass); the accessibility path is node omission.
 
-(defeffect aurora
+(defeffect
+  aurora
   (priority 450)
   (params-size 96)
   (params-resource "aurora:params")

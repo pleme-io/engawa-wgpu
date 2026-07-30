@@ -5,7 +5,8 @@
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<CrtParams>() matches.
 
-(defeffect crt
+(defeffect
+  crt
   (priority 650)
   (params-size 32)
   (params-resource "crt:params")

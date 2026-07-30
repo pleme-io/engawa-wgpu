@@ -10,7 +10,8 @@
 ;   resolution = (width, height, _, _)
 ;   cursor     = (x, y, _, _)
 
-(defeffect snow
+(defeffect
+  snow
   (priority 500)
   (params-size 64)
   (params-resource "snow:params")

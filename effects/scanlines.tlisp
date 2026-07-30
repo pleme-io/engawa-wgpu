@@ -5,7 +5,8 @@
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<ScanlinesParams>() matches.
 
-(defeffect scanlines
+(defeffect
+  scanlines
   (priority 600)
   (params-size 16)
   (params-resource "scanlines:params")

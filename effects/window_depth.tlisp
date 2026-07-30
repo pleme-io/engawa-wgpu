@@ -5,7 +5,8 @@
 ; tests/catalog_matrix.rs reads this file and asserts
 ; size_of::<WindowDepthParams>() matches.
 
-(defeffect window_depth
+(defeffect
+  window_depth
   (priority 760)
   (params-size 32)
   (params-resource "window_depth:params")

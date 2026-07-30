@@ -10,7 +10,8 @@
 ;   time       (seconds; quantized to ~5 updates/sec in-shader)
 ;   _pad       (3 × f32 → 16-byte alignment)
 
-(defeffect grain
+(defeffect
+  grain
   (priority 750)
   (params-size 32)
   (params-resource "grain:params")
