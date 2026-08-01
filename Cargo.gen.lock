@@ -1,6 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "cargo_lock_sha256": "9af748d0b56ece2e85f4bf094b26c14d9340bfcf8534aa29321bfc78e72f9045",
+  "manifest_sha256": {
+    "Cargo.toml": "cc4bec9884b8055c72e1ae7dd3ee86ef2546888c4f4c83887abb1b90f0dc55a6"
+  },
   "target_resolves": {
     "base": {
       "arrayref-0.3.9": {
@@ -18150,6 +18153,10 @@
         {
           "kind": "force-cfg",
           "cfg": "supports_64bit_atomics"
+        },
+        {
+          "kind": "force-cfg",
+          "cfg": "supports_ptr_atomics"
         }
       ]
     },
@@ -18160,6 +18167,10 @@
         {
           "kind": "force-cfg",
           "cfg": "supports_64bit_atomics"
+        },
+        {
+          "kind": "force-cfg",
+          "cfg": "supports_ptr_atomics"
         }
       ]
     },
@@ -18176,6 +18187,10 @@
         {
           "kind": "force-cfg",
           "cfg": "supports_64bit_atomics"
+        },
+        {
+          "kind": "force-cfg",
+          "cfg": "supports_ptr_atomics"
         }
       ]
     },
@@ -18185,6 +18200,10 @@
         {
           "kind": "force-cfg",
           "cfg": "supports_64bit_atomics"
+        },
+        {
+          "kind": "force-cfg",
+          "cfg": "supports_ptr_atomics"
         }
       ]
     },
