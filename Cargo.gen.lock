@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "9af748d0b56ece2e85f4bf094b26c14d9340bfcf8534aa29321bfc78e72f9045",
+  "cargo_lock_sha256": "b4274ce90e6dc294de1c8198eb022a97097a21ebdc2e1490b9012169183f27bc",
   "manifest_sha256": {
-    "Cargo.toml": "cc4bec9884b8055c72e1ae7dd3ee86ef2546888c4f4c83887abb1b90f0dc55a6"
+    "Cargo.toml": "98e6876f8c39791898139c20f63fc47fd2e58652ebfd7b8683d0c0a1697edf43"
   },
   "target_resolves": {
     "base": {
@@ -498,11 +498,11 @@
           "std"
         ]
       },
-      "engawa-0.1.3-bda639d5d9bd3ec2dd59ff84b2925ae278f24c52": {
+      "engawa-0.1.4": {
         "runtime_dependencies": [
           {
             "name": "pleme_allvariants_derive",
-            "package_key": "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec",
+            "package_key": "pleme-allvariants-derive-0.1.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -552,7 +552,7 @@
           },
           {
             "name": "engawa",
-            "package_key": "engawa-0.1.3-bda639d5d9bd3ec2dd59ff84b2925ae278f24c52",
+            "package_key": "engawa-0.1.4",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -562,7 +562,7 @@
           },
           {
             "name": "pleme_allvariants_derive",
-            "package_key": "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec",
+            "package_key": "pleme-allvariants-derive-0.1.0",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -678,7 +678,7 @@
           "std"
         ]
       },
-      "garasu-0.1.4-a2afc2ad6530ed096ab26f5d92bd4e1d348253ee": {
+      "garasu-0.1.7": {
         "runtime_dependencies": [
           {
             "name": "bincode",
@@ -1575,7 +1575,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec": {
+      "pleme-allvariants-derive-0.1.0": {
         "runtime_dependencies": [
           {
             "name": "proc_macro2",
@@ -17680,7 +17680,7 @@
     "dpi-0.1.2": {
       "edition": "2021"
     },
-    "engawa-0.1.3-bda639d5d9bd3ec2dd59ff84b2925ae278f24c52": {
+    "engawa-0.1.4": {
       "edition": "2024"
     },
     "engawa-wgpu-0.1.9": {
@@ -17727,7 +17727,7 @@
     "foreign-types-shared-0.3.1": {
       "edition": "2018"
     },
-    "garasu-0.1.4-a2afc2ad6530ed096ab26f5d92bd4e1d348253ee": {
+    "garasu-0.1.7": {
       "edition": "2024",
       "build_script": "build.rs"
     },
@@ -17895,7 +17895,7 @@
     "pkg-config-0.3.33": {
       "edition": "2018"
     },
-    "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec": {
+    "pleme-allvariants-derive-0.1.0": {
       "edition": "2024",
       "proc_macro": true
     },
@@ -18245,10 +18245,6 @@
       "proc_macro": true
     }
   },
-  "git_nar_sha256": {
-    "engawa-0.1.3-bda639d5d9bd3ec2dd59ff84b2925ae278f24c52": "sha256-Z9exdzhmkz90dNCArTnVC69CxLZDnC1ShRTFvDHE2JA=",
-    "garasu-0.1.4-a2afc2ad6530ed096ab26f5d92bd4e1d348253ee": "sha256-//cvGAyxRVhcwHD56yf9M5SPn63GiwP+y06b8OlVfvs=",
-    "pleme-allvariants-derive-0.1.0-c66f20d1dc5727cfa0d1f83a02a28609a13387ec": "sha256-XiO3eXRNjEzczetYv1+AYnyPrIuGpA/FYfRHD47QQYY="
-  },
+  "git_nar_sha256": {},
   "flake_metadata": {}
 }

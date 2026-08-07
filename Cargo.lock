@@ -439,8 +439,9 @@ checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 
 [[package]]
 name = "engawa"
-version = "0.1.3"
-source = "git+https://github.com/pleme-io/engawa#bda639d5d9bd3ec2dd59ff84b2925ae278f24c52"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccf324816f1ff4bd07f7f461a2ab24c558e5cd2189f587d7c0970e6546eb6f49"
 dependencies = [
  "pleme-allvariants-derive",
  "serde",
@@ -592,8 +593,9 @@ dependencies = [
 
 [[package]]
 name = "garasu"
-version = "0.1.4"
-source = "git+https://github.com/pleme-io/garasu#a2afc2ad6530ed096ab26f5d92bd4e1d348253ee"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56e5f711c62734d52b0692049a0885caed4c4ed1905904e9bc838380955168a6"
 dependencies = [
  "bincode",
  "blake3",
@@ -1426,7 +1428,8 @@ checksum = "b4596b6d070b27117e987119b4dac604f3c58cfb0b191112e24771b2faeac1a6"
 [[package]]
 name = "pleme-allvariants-derive"
 version = "0.1.0"
-source = "git+https://github.com/pleme-io/pleme-allvariants-derive#c66f20d1dc5727cfa0d1f83a02a28609a13387ec"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cb114bcd833314a8da4ca405f57aa7f4f1bffed58dcf4d41a020c2bc89a662a"
 dependencies = [
  "proc-macro2",
  "quote",

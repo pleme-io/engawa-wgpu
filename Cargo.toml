@@ -19,19 +19,20 @@ missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 
 [dependencies]
-# version+git: publish ships the crates.io version dep (engawa is on
-# crates.io); local/HEAD builds resolve to engawa HEAD via git.
-engawa = { version = "0.1", git = "https://github.com/pleme-io/engawa" }
+# crates.io, never git: a git source and a registry source are DISTINCT
+# to cargo even at an identical version, so a git dep silently doubles
+# engawa in every consumer graph — and blocks publishing outright.
+engawa = "0.1"
 wgpu = "25"
 thiserror = "2"
 bytemuck = { version = "1", features = ["derive"] }
 # Mechanical ALL registry for the effect catalog enum — per the
 # ★★ EMITTER SUBSTRATE rule, ALL is derived from the variants,
 # never hand-listed (macro farm, tatara-rust-ast).
-pleme-allvariants-derive = { version = "0.1", git = "https://github.com/pleme-io/pleme-allvariants-derive" }
+pleme-allvariants-derive = "0.1"
 
 [dev-dependencies]
-garasu = { git = "https://github.com/pleme-io/garasu", features = ["gpu_tests"] }
+garasu = { version = "0.1", features = ["gpu_tests"] }
 pollster = "0.4"
 
 [features]
